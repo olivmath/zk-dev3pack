@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Data** | 16 de abril de 2026 |
-| **Instrutora** | Dra. Melissa (0xMilica) |
+| **Instrutora** | Milica ([@0xMilica](https://x.com/0xMilica)) |
 | **Duração** | 1h26 |
 | **Vídeo** | https://www.youtube.com/watch?v=Yu0g3TXubhM |
 | **Slides** | [`slides-essential-tools.pptx`](./slides-essential-tools.pptx) |

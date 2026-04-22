@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Data** | 14 de abril de 2026 |
-| **Instrutora** | Dra. Melissa (0xMilica) |
+| **Instrutora** | Milica ([@0xMilica](https://x.com/0xMilica)) |
 | **Duração** | 1h23 |
 | **Vídeo** | https://www.youtube.com/watch?v=iFPdgimiFVg |
 | **Slides** | [`slides-intro-to-cryptography.pdf`](./slides-intro-to-cryptography.pdf) |
@@ -16,7 +16,7 @@
 
 ### 1. Introdução ao Boot Camp e Conceitos de Zero Knowledge (ZK)
 
-A aula inicia-se estabelecendo o propósito do treinamento: preparar os alunos para compreender as ferramentas e linguagens de **Zero Knowledge Proofs (ZKP)** através do domínio de seus fundamentos. Melissa destaca que, antes de mergulhar em STARKs ou implementações complexas, é essencial entender o "quadro geral" da criptografia.
+A aula inicia-se estabelecendo o propósito do treinamento: preparar os alunos para compreender as ferramentas e linguagens de **Zero Knowledge Proofs (ZKP)** através do domínio de seus fundamentos. Milica destaca que, antes de mergulhar em STARKs ou implementações complexas, é essencial entender o "quadro geral" da criptografia.
 
 **O que é ZK?**
 Durante uma discussão interativa, os alunos e a instrutora definem ZK como:
@@ -99,7 +99,7 @@ Conceito utilizado na geração de chaves e verificações de segurança em prot
 
 1. **Esclarecimento sobre Vigenère:** A professora explica que a cifra de Vigenère usa "passwords". Tecnicamente, ela é uma cifra **polialfabética**. Diferente da cifra de César (monoalfabética), uma única letra 'E' no texto original pode se tornar 'X' ou 'M' dependendo da posição da chave, o que "achata" o histograma de frequência.
 
-2. **Precisão Histórica e Técnica:** Melissa menciona que o alfabeto romano tinha 25 letras por não possuir o 'J'. Na verdade, o alfabeto latino clássico tinha 23 letras (faltavam J, U e W). Na criptografia clássica, é comum usar um alfabeto de 25 letras (fundindo I/J) para criar matrizes 5x5 (como na cifra Playfair).
+2. **Precisão Histórica e Técnica:** Milica menciona que o alfabeto romano tinha 25 letras por não possuir o 'J'. Na verdade, o alfabeto latino clássico tinha 23 letras (faltavam J, U e W). Na criptografia clássica, é comum usar um alfabeto de 25 letras (fundindo I/J) para criar matrizes 5x5 (como na cifra Playfair).
 
 3. **Correção sobre "Inquebrabilidade":** A instrutora menciona que nada é inquebrável, apenas falta poder computacional. **Exceção importante:** o **One-Time Pad (OTP)**. Se a chave for verdadeiramente aleatória, do mesmo tamanho da mensagem e nunca reutilizada, ele é matematicamente inquebrável (sigilo perfeito), independentemente do poder computacional.
 

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Data** | 21 de abril de 2026 |
-| **Instrutora** | Dra. Melissa (0xMilica) |
+| **Instrutora** | Milica ([@0xMilica](https://x.com/0xMilica)) |
 | **Duração** | 1h19 |
 | **Vídeo** | https://www.youtube.com/watch?v=5QigN0mnJws |
 | **Slides** | [`slides-prover-verifier-witness-mpc-kzg.pptx`](./slides-prover-verifier-witness-mpc-kzg.pptx) |
