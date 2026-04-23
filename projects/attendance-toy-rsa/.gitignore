@@ -36,10 +36,16 @@ lerna-debug.log*
 .DS_Store
 
 # generated contract clients
+# we commit `attendance` package source so Vercel can build without
+# the Stellar CLI; dist + node_modules are still ignored below.
 packages/*
-# if you have other workspace packages, add them here
 !packages/.gitkeep
+!packages/attendance
+packages/attendance/dist
+packages/attendance/node_modules
 
 # generated contract client imports
 src/contracts/*
 !src/contracts/util.ts
+!src/contracts/attendance.ts
+*.tsbuildinfo

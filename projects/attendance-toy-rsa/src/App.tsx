@@ -1,6 +1,6 @@
 import { Routes, Route, Outlet, Link, useLocation } from "react-router-dom"
 import styles from "./App.module.css"
-import ConnectAccount from "./components/ConnectAccount"
+import WalletDropdown from "./components/WalletDropdown"
 import Landing from "./pages/Landing"
 import StudentView from "./pages/StudentView"
 import TeacherView from "./pages/TeacherView"
@@ -11,9 +11,9 @@ function App() {
 		<Routes>
 			<Route element={<AppLayout />}>
 				<Route path="/" element={<Landing />} />
-				<Route path="/aluno" element={<StudentView />} />
-				<Route path="/prof" element={<TeacherView />} />
-				<Route path="/prof/aula/:aulaId" element={<TeacherAulaView />} />
+				<Route path="/join" element={<StudentView />} />
+				<Route path="/host" element={<TeacherView />} />
+				<Route path="/host/class/:classId" element={<TeacherAulaView />} />
 			</Route>
 		</Routes>
 	)
@@ -27,7 +27,7 @@ const AppLayout: React.FC = () => {
 		<div className={styles.shell}>
 			<header className={styles.header}>
 				<div className={styles.headerInner}>
-					<Link to="/" className={styles.brand} aria-label="Início">
+					<Link to="/" className={styles.brand} aria-label="Home">
 						<Monogram />
 						<span className={styles.brandText}>
 							<span className={styles.brandKicker}>Dev3Pack · edition</span>
@@ -39,23 +39,20 @@ const AppLayout: React.FC = () => {
 
 					{isLanding ? (
 						<div className={styles.landingActions}>
-							<Link to="/prof" className={styles.launchBtn}>
+							<Link to="/host" className={styles.launchBtn}>
 								Launch app →
 							</Link>
 						</div>
 					) : (
 						<>
 							<nav className={styles.nav}>
-								<NavItem to="/" current={pathname}>
-									Início
-								</NavItem>
-								<NavItem to="/prof" current={pathname}>
-									Minhas aulas
+								<NavItem to="/host" current={pathname}>
+									My classes
 								</NavItem>
 							</nav>
 
 							<div className={styles.headerActions}>
-								<ConnectAccount />
+								<WalletDropdown />
 							</div>
 						</>
 					)}

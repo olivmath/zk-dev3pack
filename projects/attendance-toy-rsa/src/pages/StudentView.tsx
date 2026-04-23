@@ -8,7 +8,7 @@ const POLL_MS = 3000
 
 const StudentView: React.FC = () => {
 	const [params] = useSearchParams()
-	const aulaIdStr = params.get("aula") ?? ""
+	const aulaIdStr = params.get("class") ?? ""
 	const aulaId = aulaIdStr ? BigInt(aulaIdStr) : undefined
 
 	const { attendance, address, signAndSend } = useAttendance()
@@ -78,7 +78,7 @@ const StudentView: React.FC = () => {
 				e: parseInt(e, 10),
 			})
 			await signAndSend(tx)
-			setSuccess("Chave registrada — você está na chamada.")
+			setSuccess("Key registered — you're in the roll call.")
 			await refresh()
 		} catch (err: unknown) {
 			setError(String(err))
@@ -98,13 +98,13 @@ const StudentView: React.FC = () => {
 				s: parseInt(s, 10),
 			})
 			await signAndSend(tx)
-			setSuccess(`Assinatura aceita: ${s}^${e} mod ${n} = ${challenge}.`)
+			setSuccess(`Signature accepted: ${s}^${e} mod ${n} = ${challenge}.`)
 			await refresh()
 		} catch (err: unknown) {
 			const msg = String(err)
 			setError(
 				msg.includes("InvalidSignature")
-					? `Assinatura inválida. ${s}^${e} mod ${n} ≠ ${challenge}. Confira a conta.`
+					? `Invalid signature. ${s}^${e} mod ${n} ≠ ${challenge}. Check your math.`
 					: msg,
 			)
 		} finally {
@@ -112,16 +112,16 @@ const StudentView: React.FC = () => {
 		}
 	}
 
-	// ─── Estados-guarda ───
+	// ─── Guard states ───
 	if (!aulaId) {
 		return (
 			<div className="viewWrap">
 				<section className={`sheet ${styles.guard}`}>
-					<span className="kicker">Sem aula</span>
-					<h2 className="sheetTitle">Você precisa do link da aula</h2>
+					<span className="kicker">No class</span>
+					<h2 className="sheetTitle">You need the class link</h2>
 					<p className="sheetSub">
-						Volte pra <a href="/">tela inicial</a> ou cole o link completo
-						que alguém compartilhou (com <code>?aula=N</code> no fim).
+						Go back to <a href="/">the home screen</a> or paste the full
+						link someone shared (with <code>?class=N</code> at the end).
 					</p>
 				</section>
 			</div>
@@ -132,13 +132,13 @@ const StudentView: React.FC = () => {
 		return (
 			<div className="viewWrap">
 				<section className={`sheet ${styles.guard}`}>
-					<span className="kicker">Acesso</span>
+					<span className="kicker">Access</span>
 					<h2 className="sheetTitle">
-						Conecte sua <em>wallet</em>
+						Connect your <em>wallet</em>
 					</h2>
 					<p className="sheetSub">
-						Use o botão no canto superior direito pra conectar Freighter,
-						Albedo, xBull ou Lobstr — depois você pode entrar na aula.
+						Use the button in the top-right to connect Freighter, Albedo,
+						xBull or Lobstr — then you can join the class.
 					</p>
 				</section>
 			</div>
@@ -150,7 +150,7 @@ const StudentView: React.FC = () => {
 			<div className="viewWrap">
 				<section className={`sheet sheet--soft ${styles.guard}`}>
 					<p className={styles.loading}>
-						Carregando aula <strong>№{aulaIdStr}</strong>…
+						Loading class <strong>№{aulaIdStr}</strong>…
 					</p>
 				</section>
 			</div>
@@ -161,19 +161,19 @@ const StudentView: React.FC = () => {
 
 	return (
 		<div className="viewWrap">
-			{/* Header da aula */}
+			{/* Class header */}
 			<header className="viewHead">
 				<div className={styles.headRow}>
 					<div>
 						<span className="kicker">
-							Aula №{aulaIdStr.padStart(2, "0")}
+							Class №{aulaIdStr.padStart(2, "0")}
 						</span>
 						<h1 className="viewTitle">{aula.name}</h1>
 					</div>
 					<StateBadge state={stateLabel} />
 				</div>
 				<p className={styles.walletLine}>
-					Sua wallet:{" "}
+					Your wallet:{" "}
 					<code className="addr">
 						{address.slice(0, 8)}…{address.slice(-6)}
 					</code>
@@ -182,7 +182,7 @@ const StudentView: React.FC = () => {
 
 			{error && (
 				<div className="note note--error">
-					<span className="note__tag">erro</span>
+					<span className="note__tag">error</span>
 					<span>{error}</span>
 				</div>
 			)}
@@ -193,20 +193,20 @@ const StudentView: React.FC = () => {
 				</div>
 			)}
 
-			{/* ─── Estado: Registration / não registrado ─── */}
+			{/* ─── State: registration open / not registered ─── */}
 			{stateLabel === "Registration" && !isRegistered && (
 				<section className="sheet">
-					<span className="kicker">Etapa 1 · Registro</span>
-					<h2 className="sheetTitle">Registre sua chave pública</h2>
+					<span className="kicker">Step 1 · Register</span>
+					<h2 className="sheetTitle">Register your public key</h2>
 					<p className="sheetSub">
-						Calcule seu par <code>(n, e, d)</code> à mão. Envie só
-						<code> (n, e)</code>. O <code>d</code> fica no papel — não
-						digite em lugar nenhum.
+						Compute your <code>(n, e, d)</code> by hand. Send only
+						<code> (n, e)</code>. The <code>d</code> stays on your paper —
+						don't type it anywhere.
 					</p>
 
 					<div className={styles.keyGrid}>
 						<div>
-							<label className="fieldLabel" htmlFor="kn">n (módulo)</label>
+							<label className="fieldLabel" htmlFor="kn">n (modulus)</label>
 							<input
 								id="kn"
 								type="number"
@@ -216,7 +216,7 @@ const StudentView: React.FC = () => {
 							/>
 						</div>
 						<div>
-							<label className="fieldLabel" htmlFor="ke">e (expoente público)</label>
+							<label className="fieldLabel" htmlFor="ke">e (public exponent)</label>
 							<input
 								id="ke"
 								type="number"
@@ -231,37 +231,37 @@ const StudentView: React.FC = () => {
 							onClick={() => void handleRegister()}
 							disabled={loading || !n || !e}
 						>
-							{loading ? "Registrando…" : "Registrar →"}
+							{loading ? "Registering…" : "Register →"}
 						</button>
 					</div>
 				</section>
 			)}
 
-			{/* ─── Registrado, aguardando ─── */}
+			{/* ─── Registered, waiting ─── */}
 			{stateLabel === "Registration" && isRegistered && (
 				<section className="sheet">
-					<span className="kicker">Etapa 1 · Concluída</span>
+					<span className="kicker">Step 1 · Done</span>
 					<h2 className="sheetTitle">
-						Registrado <em>✓</em>
+						Registered <em>✓</em>
 					</h2>
 					<p className="sheetSub">
-						Sua chave pública está no contrato. Aguarde quem criou a aula
-						lançar o desafio.
+						Your public key is on the contract. Waiting for the host to
+						issue the challenge.
 					</p>
 					<p className={styles.fineLine}>
-						{aula.students.length} participante(s) na chamada até agora.
+						{aula.students.length} participant(s) in the roll call so far.
 					</p>
 				</section>
 			)}
 
-			{/* ─── Desafio chegou ─── */}
+			{/* ─── Challenge arrived ─── */}
 			{stateLabel === "Challenging" && challenge !== null && !hasValidSub && (
 				<section className="sheet">
-					<span className="kicker">Etapa 2 · Desafio</span>
-					<h2 className="sheetTitle">Seu desafio chegou</h2>
+					<span className="kicker">Step 2 · Challenge</span>
+					<h2 className="sheetTitle">Your challenge has arrived</h2>
 					<p className="sheetSub">
-						Calcule <code>s = m<sup>d</sup> mod n</code> usando o{" "}
-						<code>d</code> do papel.
+						Compute <code>s = m<sup>d</sup> mod n</code> using the{" "}
+						<code>d</code> from your paper.
 					</p>
 
 					<div className={styles.challengeStage}>
@@ -274,14 +274,14 @@ const StudentView: React.FC = () => {
 					<div className={styles.signGrid}>
 						<div>
 							<label className="fieldLabel" htmlFor="sin">
-								Assinatura s
+								Signature s
 							</label>
 							<input
 								id="sin"
 								type="number"
 								value={s}
 								onChange={(ev) => setS(ev.target.value)}
-								placeholder="digite o valor de s"
+								placeholder="type the value of s"
 								className="input--paper"
 							/>
 						</div>
@@ -291,25 +291,25 @@ const StudentView: React.FC = () => {
 							onClick={() => void handleSubmit()}
 							disabled={loading || !s}
 						>
-							{loading ? "Assinando…" : "Assinar →"}
+							{loading ? "Signing…" : "Sign →"}
 						</button>
 					</div>
 
 					<p className={styles.fineLine}>
-						Pode tentar quantas vezes quiser até a aula ser encerrada.
+						You can try as many times as you want until the class is closed.
 					</p>
 				</section>
 			)}
 
 			{stateLabel === "Challenging" && hasValidSub && (
 				<section className="sheet">
-					<span className="kicker">Etapa 2 · Concluída</span>
+					<span className="kicker">Step 2 · Done</span>
 					<h2 className="sheetTitle">
-						Assinatura aceita <em>✓</em>
+						Signature accepted <em>✓</em>
 					</h2>
 					<p className="sheetSub">
-						Aguardando o encerramento da aula pra emitir seu NFT de
-						presença.
+						Waiting for the class to close so your presence NFT can be
+						minted.
 					</p>
 				</section>
 			)}
@@ -317,18 +317,18 @@ const StudentView: React.FC = () => {
 			{stateLabel === "Challenging" && challenge === null && (
 				<section className="sheet sheet--soft">
 					<p className={styles.loading}>
-						Aguardando seu desafio aparecer…
+						Waiting for your challenge to appear…
 					</p>
 				</section>
 			)}
 
-			{/* ─── Aula encerrada com NFT ─── */}
+			{/* ─── Class closed with NFT ─── */}
 			{stateLabel === "Closed" && nftToken !== null && (
 				<section className={`sheet sheet--dark ${styles.diploma}`}>
 					<span className="kicker" style={{ color: "var(--gold-soft)" }}>
 						Diploma · Soulbound
 					</span>
-					<h2 className="sheetTitle">Presença registrada</h2>
+					<h2 className="sheetTitle">Presence recorded</h2>
 
 					<div className={styles.nftPlate}>
 						<span className={styles.nftHash}>#</span>
@@ -336,18 +336,18 @@ const StudentView: React.FC = () => {
 					</div>
 
 					<p className={styles.diplomaCaption}>
-						<em>{aula.name}</em> · token soulbound emitido pelo contrato
+						<em>{aula.name}</em> · soulbound token issued by the contract
 					</p>
 				</section>
 			)}
 
 			{stateLabel === "Closed" && nftToken === null && (
 				<section className="sheet">
-					<span className="kicker">Aula encerrada</span>
-					<h2 className="sheetTitle">Presença não registrada</h2>
+					<span className="kicker">Class closed</span>
+					<h2 className="sheetTitle">Presence not recorded</h2>
 					<p className="sheetSub">
-						A aula foi fechada antes da sua assinatura ser aceita.
-						Infelizmente sua presença não foi computada nessa sessão.
+						The class was closed before your signature was accepted.
+						Unfortunately your presence wasn't counted this time.
 					</p>
 				</section>
 			)}
@@ -355,13 +355,15 @@ const StudentView: React.FC = () => {
 	)
 }
 
+const STATE_LABELS = {
+	Registration: { cls: "badge--registration", label: "Registration open" },
+	Challenging: { cls: "badge--challenging", label: "Challenges issued" },
+	Closed: { cls: "badge--closed", label: "Closed" },
+} as const
+
 const StateBadge: React.FC<{ state: string }> = ({ state }) => {
-	const map: Record<string, { cls: string; label: string }> = {
-		Registration: { cls: "badge--registration", label: "Registro aberto" },
-		Challenging: { cls: "badge--challenging", label: "Desafios lançados" },
-		Closed: { cls: "badge--closed", label: "Fechada" },
-	}
-	const m = map[state] ?? map.Closed
+	const m =
+		STATE_LABELS[state as keyof typeof STATE_LABELS] ?? STATE_LABELS.Closed
 	return <span className={`badge ${m.cls}`}>{m.label}</span>
 }
 

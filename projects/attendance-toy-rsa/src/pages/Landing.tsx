@@ -9,23 +9,23 @@ const Landing: React.FC = () => {
 				<div className={styles.heroLeft}>
 					<span className={styles.kicker}>Toy RSA · open protocol</span>
 					<h1 className={styles.title}>
-						Prova de presença
+						Proof of presence,
 						<br />
-						<em className={styles.titleEm}>assinada à mão.</em>
+						<em className={styles.titleEm}>signed by hand.</em>
 					</h1>
 					<p className={styles.lede}>
-						Um protocolo aberto pra registrar presença usando RSA feito no
-						papel. Sem permissão, sem cadastro: <strong>qualquer um abre
-						uma aula, qualquer um participa.</strong> Você calcula sua chave
-						à mão, assina o desafio e recebe um NFT soulbound como prova —
-						verificada por matemática, não por servidor.
+						An open protocol for recording attendance using RSA done on
+						paper. No permission, no signup: <strong>anyone can open a
+						class, anyone can join.</strong> You compute your key by hand,
+						sign the challenge, and receive a soulbound NFT as proof —
+						verified by math, not a server.
 					</p>
 					<div className={styles.heroCta}>
-						<Link to="/prof" className={styles.primaryCta}>
-							Abrir uma aula →
+						<Link to="/host" className={styles.primaryCta}>
+							Open a class →
 						</Link>
 						<a href="#step-1" className={styles.secondaryCta}>
-							Como funciona ↓
+							How it works ↓
 						</a>
 					</div>
 				</div>
@@ -35,41 +35,40 @@ const Landing: React.FC = () => {
 				</aside>
 			</section>
 
-			{/* ─── STEP 1 — Calcule no papel ─── */}
+			{/* ─── STEP 1 — Compute on paper ─── */}
 			<Step
 				id="step-1"
 				index="01"
-				kicker="Etapa 1 · O papel"
-				title="Cada participante gera seu par"
+				kicker="Step 1 · The paper"
+				title="Each participant generates their"
 				titleEm="(n, e, d)"
 				body={
 					<>
-						Antes de entrar, você fabrica sua própria chave. Pegue dois
-						primos pequenos <code>p</code> e <code>q</code> (ex.: 7 e 11),
-						multiplique pra obter <code>n = 77</code>, calcule{" "}
-						<code>φ(n) = 60</code>, escolha um <code>e</code> coprimo com{" "}
-						<code>φ</code> e ache o <code>d</code> que satisfaz{" "}
-						<code>e · d ≡ 1 (mod φ)</code>. O <code>d</code> nunca é
-						digitado em lugar nenhum — fica só no seu papel.
+						Before joining, you forge your own key. Pick two small primes{" "}
+						<code>p</code> and <code>q</code> (e.g. 7 and 11), multiply to
+						get <code>n = 77</code>, compute <code>φ(n) = 60</code>, choose
+						an <code>e</code> coprime with <code>φ</code>, and find{" "}
+						<code>d</code> such that <code>e · d ≡ 1 (mod φ)</code>. The{" "}
+						<code>d</code> is never typed anywhere — it stays on your paper.
 					</>
 				}
 				image={<PaperKey />}
 				orientation="text-left"
 			/>
 
-			{/* ─── STEP 2 — Registre a chave pública ─── */}
+			{/* ─── STEP 2 — Register the public key ─── */}
 			<Step
 				id="step-2"
 				index="02"
-				kicker="Etapa 2 · On-chain"
-				title="Registre só a parte"
-				titleEm="pública"
+				kicker="Step 2 · On-chain"
+				title="Register only the"
+				titleEm="public part"
 				body={
 					<>
-						Conecte sua wallet, cole o ID da aula que alguém compartilhou e
-						envie pro contrato apenas o par <code>(n, e)</code> — a parte
-						pública. O Soroban guarda sua chave junto com seu endereço.
-						Pronto: você entrou na chamada sem revelar nada do seu{" "}
+						Connect your wallet, paste the class ID someone shared, and send
+						the contract just the <code>(n, e)</code> pair — the public
+						half. The Soroban contract pins your key to your address.
+						You're in the roll call without revealing anything about your{" "}
 						<code>d</code>.
 					</>
 				}
@@ -77,41 +76,41 @@ const Landing: React.FC = () => {
 				orientation="text-right"
 			/>
 
-			{/* ─── STEP 3 — Receba o desafio ─── */}
+			{/* ─── STEP 3 — Receive the challenge ─── */}
 			<Step
 				id="step-3"
 				index="03"
-				kicker="Etapa 3 · Desafio"
-				title="Cada um recebe um"
-				titleEm="m aleatório"
+				kicker="Step 3 · Challenge"
+				title="Everyone gets a random"
+				titleEm="m"
 				body={
 					<>
-						Encerrado o registro, quem criou a aula chama{" "}
-						<code>issue_challenges</code> e o contrato sorteia um{" "}
-						<code>m</code> diferente pra cada participante. O seu aparece na
-						tela em escala gigante — é esse número que precisa ser assinado
-						pra valer presença.
+						When registration closes, the host calls{" "}
+						<code>issue_challenges</code> and the contract draws a different{" "}
+						<code>m</code> for each participant. Yours appears on the screen
+						at giant scale — it's the number you must sign to prove you're
+						here.
 					</>
 				}
 				image={<ChallengePaper />}
 				orientation="text-left"
 			/>
 
-			{/* ─── STEP 4 — Assine na mão ─── */}
+			{/* ─── STEP 4 — Sign by hand ─── */}
 			<Step
 				id="step-4"
 				index="04"
-				kicker="Etapa 4 · A caneta"
-				title="Assine na mão"
+				kicker="Step 4 · The pen"
+				title="Sign it by hand"
 				titleEm="s = m^d mod n"
 				body={
 					<>
-						De volta ao papel: pegue o <code>m</code> que apareceu, eleve à{" "}
-						<code>d</code>, tire o resto por <code>n</code>. O número que
-						sobrar é sua assinatura <code>s</code>. Você digita só{" "}
-						<code>s</code> no app — o contrato roda{" "}
-						<code>s^e mod n</code> e confere se bate com o <code>m</code>{" "}
-						original. Bateu, presença confirmada.
+						Back to paper: take the <code>m</code> that appeared, raise it to{" "}
+						<code>d</code>, take the remainder mod <code>n</code>. The
+						leftover number is your signature <code>s</code>. You only type{" "}
+						<code>s</code> in the app — the contract runs{" "}
+						<code>s^e mod n</code> and checks it matches the original{" "}
+						<code>m</code>. If it does, attendance confirmed.
 					</>
 				}
 				image={<SignPaper />}
@@ -122,49 +121,49 @@ const Landing: React.FC = () => {
 			<Step
 				id="step-5"
 				index="05"
-				kicker="Etapa 5 · O diploma"
-				title="O diploma é"
+				kicker="Step 5 · The diploma"
+				title="The diploma is"
 				titleEm="soulbound"
 				body={
 					<>
-						Quem abriu a aula chama <code>close_aula</code>. Pra cada
-						participante com assinatura válida, o contrato emite um token
-						não-transferível, vinculado pra sempre àquela aula específica.
-						Sua prova de presença não depende de senha, câmera, lista de
-						chamada ou autoridade — só de <code>s^e mod n = m</code>.
+						The host calls <code>close_aula</code>. For each participant
+						with a valid signature, the contract mints a non-transferable
+						token, bound forever to that specific class. Your proof of
+						presence doesn't depend on a password, a camera, a roll sheet
+						or any authority — only on <code>s^e mod n = m</code>.
 					</>
 				}
 				image={<DiplomaPaper />}
 				orientation="text-left"
 			/>
 
-			{/* ─── CTA FINAL ─── */}
+			{/* ─── END CTA ─── */}
 			<section className={styles.endCta}>
-				<span className="kicker">É só isso</span>
+				<span className="kicker">That's it</span>
 				<h2 className={styles.endTitle}>
-					Toy RSA, <em>aberto pra quem quiser</em>.
+					Toy RSA, <em>open to anyone</em>.
 				</h2>
 				<p className={styles.endLede}>
-					Cinco etapas, três multiplicações, um resto de divisão. Sem
-					permissão, sem cadastro, sem hierarquia: qualquer um abre uma aula,
-					qualquer um entra. Bem-vindo ao protocolo de presença mais
-					analógico que já passou por uma blockchain.
+					Five steps, three multiplications, one remainder. No permission, no
+					signup, no hierarchy: anyone opens a class, anyone joins. Welcome
+					to the most analog attendance protocol that ever touched a
+					blockchain.
 				</p>
 
 				<div className={styles.endRow}>
-					<Link to="/prof" className={styles.primaryCta}>
-						Abrir uma aula →
+					<Link to="/host" className={styles.primaryCta}>
+						Open a class →
 					</Link>
-					<Link to="/aluno" className={styles.secondaryCta}>
-						Entrar pelo link da turma →
+					<Link to="/join" className={styles.secondaryCta}>
+						Join via class link →
 					</Link>
 				</div>
 
 				<p className={styles.warning}>
-					<span className={styles.warningTag}>aviso</span>
-					Toy RSA com <code>n &lt; 100</code> é matematicamente correto mas{" "}
-					<strong>criptograficamente quebrável em segundos.</strong> Serve só
-					pra ensinar o mecanismo — não use pra nada real.
+					<span className={styles.warningTag}>caveat</span>
+					Toy RSA with <code>n &lt; 100</code> is mathematically correct but{" "}
+					<strong>cryptographically broken in seconds.</strong> It's only for
+					teaching the mechanism — don't use it for anything real.
 				</p>
 			</section>
 		</div>
@@ -204,7 +203,6 @@ const Step: React.FC<{
 )
 
 // ─────────── Decorative SVG papers ───────────
-// Cada um é um "pedaço de caderno" diferente. Mantém o tom editorial.
 
 const PaperBackground: React.FC<{ rot?: number; children: React.ReactNode }> = ({
 	rot = 0,
@@ -249,7 +247,7 @@ const HeroPaper: React.FC = () => (
 		</text>
 		<g transform="translate(196, 308) rotate(-6)">
 			<path d="M 0 14 Q 30 -2 70 6" fill="none" stroke="#b8341f" strokeWidth="2.2" strokeLinecap="round" />
-			<text x="2" y="34" fontFamily="Fraunces, serif" fontStyle="italic" fontSize="13" fill="#b8341f">chave!</text>
+			<text x="2" y="34" fontFamily="Fraunces, serif" fontStyle="italic" fontSize="13" fill="#b8341f">key!</text>
 		</g>
 		<ellipse cx="155" cy="100" rx="34" ry="14" fill="none" stroke="#b8341f" strokeWidth="1.8" transform="rotate(-3 155 100)" />
 	</PaperBackground>
@@ -258,7 +256,7 @@ const HeroPaper: React.FC = () => (
 const PaperKey: React.FC = () => (
 	<PaperBackground rot={-2.2}>
 		<text x="58" y="58" fontFamily="JetBrains Mono, monospace" fontSize="13" fill="#8a7d6a">
-			# escolha primos
+			# pick primes
 		</text>
 		<text x="58" y="84" fontFamily="JetBrains Mono, monospace" fontSize="22" fill="#1a1714">
 			p = <tspan fontWeight="700">7</tspan>
@@ -279,16 +277,16 @@ const PaperKey: React.FC = () => (
 		<line x1="58" y1="222" x2="262" y2="222" stroke="rgba(26,23,20,0.3)" strokeWidth="0.8" strokeDasharray="2 3" />
 
 		<text x="58" y="252" fontFamily="JetBrains Mono, monospace" fontSize="22" fill="#2d4a3a" fontWeight="700">
-			e = 7 <tspan fontFamily="Fraunces, serif" fontStyle="italic" fontSize="14" fontWeight="400" fill="#8a7d6a">(pública)</tspan>
+			e = 7 <tspan fontFamily="Fraunces, serif" fontStyle="italic" fontSize="14" fontWeight="400" fill="#8a7d6a">(public)</tspan>
 		</text>
 		<text x="58" y="284" fontFamily="JetBrains Mono, monospace" fontSize="22" fill="#b8341f" fontWeight="700">
-			d = 43 <tspan fontFamily="Fraunces, serif" fontStyle="italic" fontSize="14" fontWeight="400" fill="#8a7d6a">(secreta)</tspan>
+			d = 43 <tspan fontFamily="Fraunces, serif" fontStyle="italic" fontSize="14" fontWeight="400" fill="#8a7d6a">(secret)</tspan>
 		</text>
 
 		<g transform="translate(220, 268) rotate(-8)">
 			<path d="M -10 0 L 10 0 M 0 -10 L 0 10" stroke="#b8341f" strokeWidth="2" strokeLinecap="round" />
 			<text x="14" y="6" fontFamily="Fraunces, serif" fontStyle="italic" fontSize="12" fill="#b8341f">
-				não digite!
+				don't type!
 			</text>
 		</g>
 	</PaperBackground>
@@ -313,7 +311,7 @@ const RegisterPaper: React.FC = () => (
 		<g transform="translate(58, 150)">
 			<rect width="200" height="44" fill="rgba(184,52,31,0.05)" stroke="rgba(184,52,31,0.5)" strokeWidth="1" strokeDasharray="3 3" />
 			<text x="14" y="20" fontFamily="JetBrains Mono, monospace" fontSize="11" fill="#b8341f" fontWeight="600" letterSpacing="2">
-				SECRET (no papel)
+				SECRET (on paper)
 			</text>
 			<text x="14" y="36" fontFamily="JetBrains Mono, monospace" fontSize="13" fill="#b8341f">
 				d=43
@@ -321,7 +319,7 @@ const RegisterPaper: React.FC = () => (
 		</g>
 
 		<text x="58" y="226" fontFamily="Fraunces, serif" fontStyle="italic" fontSize="16" fill="#1a1714">
-			↓ vai pro contrato
+			↓ goes to the contract
 		</text>
 
 		<g transform="translate(58, 252)">
@@ -347,11 +345,11 @@ const RegisterPaper: React.FC = () => (
 const ChallengePaper: React.FC = () => (
 	<PaperBackground rot={-2.8}>
 		<text x="58" y="60" fontFamily="JetBrains Mono, monospace" fontSize="12" fill="#8a7d6a" letterSpacing="2">
-			ETAPA · DESAFIO
+			STEP · CHALLENGE
 		</text>
 
 		<text x="58" y="98" fontFamily="Fraunces, serif" fontStyle="italic" fontSize="18" fill="#1a1714">
-			seu m chegou:
+			your m has arrived:
 		</text>
 
 		<g transform="translate(160, 200)">
@@ -361,7 +359,7 @@ const ChallengePaper: React.FC = () => (
 		</g>
 
 		<text x="58" y="294" fontFamily="JetBrains Mono, monospace" fontSize="12" fill="#8a7d6a">
-			# precisa de s tal que
+			# need s such that
 		</text>
 		<text x="58" y="318" fontFamily="JetBrains Mono, monospace" fontSize="14" fill="#1a1714">
 			s^e mod n == m
@@ -444,7 +442,7 @@ const DiplomaPaper: React.FC = () => (
 		<line x1="80" y1="98" x2="240" y2="98" stroke="rgba(216,181,106,0.4)" strokeWidth="0.6" />
 
 		<text x="160" y="156" textAnchor="middle" fontFamily="Fraunces, serif" fontSize="20" fontStyle="italic" fill="#f3ecdc">
-			Presença
+			Presence
 		</text>
 
 		<g transform="translate(160, 240)">
@@ -456,10 +454,10 @@ const DiplomaPaper: React.FC = () => (
 		<line x1="80" y1="282" x2="240" y2="282" stroke="rgba(216,181,106,0.4)" strokeWidth="0.6" />
 
 		<text x="160" y="310" textAnchor="middle" fontFamily="Fraunces, serif" fontStyle="italic" fontSize="13" fill="rgba(243,236,220,0.7)">
-			Toy RSA · Turma E2E
+			Toy RSA · E2E Class
 		</text>
 		<text x="160" y="332" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="9" fill="rgba(216,181,106,0.7)" letterSpacing="2">
-			NÃO TRANSFERÍVEL
+			NON-TRANSFERABLE
 		</text>
 	</svg>
 )

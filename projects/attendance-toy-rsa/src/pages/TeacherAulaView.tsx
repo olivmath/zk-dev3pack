@@ -7,7 +7,7 @@ import styles from "./TeacherView.module.css"
 const POLL_MS = 4000
 
 const TeacherAulaView: React.FC = () => {
-	const { aulaId: aulaIdStr } = useParams<{ aulaId: string }>()
+	const { classId: aulaIdStr } = useParams<{ classId: string }>()
 	const navigate = useNavigate()
 	const { attendance, address, signAndSend } = useAttendance()
 
@@ -122,7 +122,7 @@ const TeacherAulaView: React.FC = () => {
 				: (result as unknown as bigint)
 			const minted = typeof raw === "bigint" ? raw.toString() : String(raw)
 			await refresh()
-			setSuccess(`${minted} NFT(s) mintado(s).`)
+			setSuccess(`${minted} NFT(s) minted.`)
 		} catch (err) {
 			setError(String(err))
 		} finally {
@@ -134,9 +134,9 @@ const TeacherAulaView: React.FC = () => {
 		return (
 			<div className="viewWrap">
 				<section className="sheet">
-					<h2 className="sheetTitle">Aula inválida</h2>
-					<p className="sheetSub">Volte pro caderno e selecione uma aula.</p>
-					<Link to="/prof" className="btn btn--ghost">← Voltar</Link>
+					<h2 className="sheetTitle">Invalid class</h2>
+					<p className="sheetSub">Go back to your notebook and pick a class.</p>
+					<Link to="/host" className="btn btn--ghost">← Back</Link>
 				</section>
 			</div>
 		)
@@ -146,11 +146,11 @@ const TeacherAulaView: React.FC = () => {
 		return (
 			<div className="viewWrap">
 				<section className={`sheet ${styles.connectCard}`}>
-					<span className="kicker">Acesso</span>
-					<h2 className="sheetTitle">Conecte sua <em>wallet</em></h2>
+					<span className="kicker">Access</span>
+					<h2 className="sheetTitle">Connect your <em>wallet</em></h2>
 					<p className="sheetSub">
-						Conecte pela barra superior pra gerenciar essa aula — só quem
-						criou pode lançar desafios e encerrar.
+						Connect via the top bar to manage this class — only the host
+						can issue challenges and close it.
 					</p>
 				</section>
 			</div>
@@ -162,15 +162,15 @@ const TeacherAulaView: React.FC = () => {
 			<div className="viewWrap">
 				<section className="sheet sheet--soft">
 					<p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--ink-soft)" }}>
-						Carregando aula <strong>№{aulaIdStr}</strong>…
+						Loading class <strong>№{aulaIdStr}</strong>…
 					</p>
-					<Link to="/prof" className="btn btn--ghost" style={{ marginTop: 16 }}>← Voltar pro caderno</Link>
+					<Link to="/host" className="btn btn--ghost" style={{ marginTop: 16 }}>← Back to notebook</Link>
 				</section>
 			</div>
 		)
 	}
 
-	const shareLink = `${window.location.origin}/aluno?aula=${aulaIdStr}`
+	const shareLink = `${window.location.origin}/join?class=${aulaIdStr}`
 	const stateLabel = aula.state.tag
 
 	return (
@@ -179,15 +179,15 @@ const TeacherAulaView: React.FC = () => {
 				<div style={{ marginBottom: 8 }}>
 					<button
 						type="button"
-						onClick={() => navigate("/prof")}
+						onClick={() => navigate("/host")}
 						className={styles.backLink}
 					>
-						← Voltar pro caderno
+						← Back to notebook
 					</button>
 				</div>
 				<div className={styles.panelHeadHeader}>
 					<div>
-						<span className="kicker">Aula №{aulaIdStr.padStart(2, "0")}</span>
+						<span className="kicker">Class №{(aulaIdStr ?? "").padStart(2, "0")}</span>
 						<h1 className="viewTitle">{aula.name}</h1>
 					</div>
 					<StateBadge state={stateLabel} />
@@ -196,7 +196,7 @@ const TeacherAulaView: React.FC = () => {
 
 			{error && (
 				<div className="note note--error">
-					<span className="note__tag">erro</span>
+					<span className="note__tag">error</span>
 					<span>{error}</span>
 				</div>
 			)}
@@ -207,14 +207,14 @@ const TeacherAulaView: React.FC = () => {
 				</div>
 			)}
 
-			{/* Estado: Registro aberto */}
+			{/* State: registration open */}
 			{stateLabel === "Registration" && (
 				<>
 					<section className="sheet">
-						<span className="kicker">Etapa 1 · Convidar</span>
-						<h2 className="sheetTitle">Compartilhe o link da aula</h2>
+						<span className="kicker">Step 1 · Invite</span>
+						<h2 className="sheetTitle">Share the class link</h2>
 						<div className={styles.shareBox}>
-							<span className="fieldLabel">Link pra participar</span>
+							<span className="fieldLabel">Link to join</span>
 							<div className={styles.shareRow}>
 								<code className={styles.shareLink}>{shareLink}</code>
 								<button
@@ -222,22 +222,22 @@ const TeacherAulaView: React.FC = () => {
 									className="btn btn--sm btn--ghost"
 									onClick={() => {
 										navigator.clipboard.writeText(shareLink)
-										setCopyMsg("Copiado!")
+										setCopyMsg("Copied!")
 										setTimeout(() => setCopyMsg(null), 1500)
 									}}
 								>
-									{copyMsg ?? "Copiar"}
+									{copyMsg ?? "Copy"}
 								</button>
 							</div>
 						</div>
 					</section>
 
 					<section className="sheet">
-						<span className="kicker">Etapa 2 · Desafios</span>
-						<h2 className="sheetTitle">Defina o <em>m</em> de cada participante</h2>
+						<span className="kicker">Step 2 · Challenges</span>
+						<h2 className="sheetTitle">Set each participant's <em>m</em></h2>
 						<p className="sheetSub">
-							Os valores são preenchidos automaticamente — ajuste se quiser.
-							Quando estiver pronto, lance os desafios.
+							Values are auto-filled — adjust them if you'd like. When
+							you're ready, issue the challenges.
 						</p>
 						<StudentsTable
 							students={aula.students}
@@ -255,18 +255,18 @@ const TeacherAulaView: React.FC = () => {
 								onClick={() => void issue()}
 								disabled={loading || aula.students.length === 0}
 							>
-								{loading ? "Lançando…" : "Lançar desafios →"}
+								{loading ? "Issuing…" : "Issue challenges →"}
 							</button>
 						</div>
 					</section>
 				</>
 			)}
 
-			{/* Estado: Desafios lançados */}
+			{/* State: challenges issued */}
 			{stateLabel === "Challenging" && (
 				<section className="sheet">
-					<span className="kicker">Etapa 3 · Aguardando</span>
-					<h2 className="sheetTitle">Assinaturas em andamento</h2>
+					<span className="kicker">Step 3 · Waiting</span>
+					<h2 className="sheetTitle">Signatures in progress</h2>
 					<StudentsTable
 						students={aula.students}
 						challenges={challenges}
@@ -279,17 +279,17 @@ const TeacherAulaView: React.FC = () => {
 							onClick={() => void close()}
 							disabled={loading}
 						>
-							{loading ? "Fechando…" : "Fechar aula e emitir NFTs"}
+							{loading ? "Closing…" : "Close class & mint NFTs"}
 						</button>
 					</div>
 				</section>
 			)}
 
-			{/* Estado: Fechada */}
+			{/* State: closed */}
 			{stateLabel === "Closed" && (
 				<section className="sheet">
-					<span className="kicker">Aula encerrada</span>
-					<h2 className="sheetTitle">Tokens emitidos</h2>
+					<span className="kicker">Class closed</span>
+					<h2 className="sheetTitle">Tokens issued</h2>
 					<StudentsTable
 						students={aula.students}
 						challenges={challenges}
@@ -323,7 +323,7 @@ const StudentsTable: React.FC<{
 					margin: "16px 0 0",
 				}}
 			>
-				Ninguém entrou na aula ainda.
+				No one has joined yet.
 			</p>
 		)
 	}
@@ -333,7 +333,7 @@ const StudentsTable: React.FC<{
 			<thead>
 				<tr>
 					<th>№</th>
-					<th>participante</th>
+					<th>participant</th>
 					{(editable || challenges) && <th>m</th>}
 					{validSubs && <th>status</th>}
 					{nfts && <th>token</th>}
@@ -374,9 +374,9 @@ const StudentsTable: React.FC<{
 						{validSubs && (
 							<td>
 								{validSubs[s] ? (
-									<span className="badge badge--valid">Assinou ✓</span>
+									<span className="badge badge--valid">Signed ✓</span>
 								) : (
-									<span className="badge badge--pending">Aguardando</span>
+									<span className="badge badge--pending">Waiting</span>
 								)}
 							</td>
 						)}
@@ -387,7 +387,7 @@ const StudentsTable: React.FC<{
 										#{nfts[s]?.toString()}
 									</span>
 								) : (
-									<span className="badge badge--invalid">Faltou</span>
+									<span className="badge badge--invalid">Absent</span>
 								)}
 							</td>
 						)}
@@ -398,13 +398,15 @@ const StudentsTable: React.FC<{
 	)
 }
 
+const STATE_LABELS = {
+	Registration: { cls: "badge--registration", label: "Registration open" },
+	Challenging: { cls: "badge--challenging", label: "Challenges issued" },
+	Closed: { cls: "badge--closed", label: "Closed" },
+} as const
+
 const StateBadge: React.FC<{ state: string }> = ({ state }) => {
-	const map: Record<string, { cls: string; label: string }> = {
-		Registration: { cls: "badge--registration", label: "Registro aberto" },
-		Challenging: { cls: "badge--challenging", label: "Desafios lançados" },
-		Closed: { cls: "badge--closed", label: "Fechada" },
-	}
-	const m = map[state] ?? map.Closed
+	const m =
+		STATE_LABELS[state as keyof typeof STATE_LABELS] ?? STATE_LABELS.Closed
 	return <span className={`badge ${m.cls}`}>{m.label}</span>
 }
 
