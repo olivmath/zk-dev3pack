@@ -3,6 +3,9 @@ import { Link, useParams, useNavigate } from "react-router-dom"
 import { useAttendance } from "../hooks/useAttendance"
 import type { AulaData } from "attendance"
 import Loading from "../components/Loading"
+import StateBadge from "../components/StateBadge"
+import Note from "../components/Note"
+import { padClassId, truncateAddress } from "../util/format"
 import styles from "./TeacherView.module.css"
 
 const POLL_MS = 4000
@@ -162,7 +165,7 @@ const TeacherAulaView: React.FC = () => {
 		return (
 			<div className="viewWrap">
 				<Loading
-					kicker={`Class №${(aulaIdStr ?? "").padStart(2, "0")}`}
+					kicker={`Class №${padClassId(aulaIdStr ?? "")}`}
 					title="Loading class data"
 					hint="Reading roll-call, challenges and tokens from the contract."
 				/>
@@ -190,25 +193,15 @@ const TeacherAulaView: React.FC = () => {
 				</div>
 				<div className={styles.panelHeadHeader}>
 					<div>
-						<span className="kicker">Class №{(aulaIdStr ?? "").padStart(2, "0")}</span>
+						<span className="kicker">Class №{padClassId(aulaIdStr ?? "")}</span>
 						<h1 className="viewTitle">{aula.name}</h1>
 					</div>
 					<StateBadge state={stateLabel} />
 				</div>
 			</header>
 
-			{error && (
-				<div className="note note--error">
-					<span className="note__tag">error</span>
-					<span>{error}</span>
-				</div>
-			)}
-			{success && (
-				<div className="note note--success">
-					<span className="note__tag">ok</span>
-					<span>{success}</span>
-				</div>
-			)}
+			{error && <Note variant="error">{error}</Note>}
+			{success && <Note variant="success">{success}</Note>}
 
 			{/* State: registration open */}
 			{stateLabel === "Registration" && (
@@ -345,13 +338,9 @@ const StudentsTable: React.FC<{
 			<tbody>
 				{students.map((s, idx) => (
 					<tr key={s}>
-						<td className={styles.studentIdx}>
-							{(idx + 1).toString().padStart(2, "0")}
-						</td>
+						<td className={styles.studentIdx}>{padClassId(idx + 1)}</td>
 						<td>
-							<code className="addr">
-								{s.slice(0, 8)}…{s.slice(-6)}
-							</code>
+							<code className="addr">{truncateAddress(s)}</code>
 						</td>
 						{(editable || challenges) && (
 							<td>
@@ -399,18 +388,6 @@ const StudentsTable: React.FC<{
 			</tbody>
 		</table>
 	)
-}
-
-const STATE_LABELS = {
-	Registration: { cls: "badge--registration", label: "Registration open" },
-	Challenging: { cls: "badge--challenging", label: "Challenges issued" },
-	Closed: { cls: "badge--closed", label: "Closed" },
-} as const
-
-const StateBadge: React.FC<{ state: string }> = ({ state }) => {
-	const m =
-		STATE_LABELS[state as keyof typeof STATE_LABELS] ?? STATE_LABELS.Closed
-	return <span className={`badge ${m.cls}`}>{m.label}</span>
 }
 
 export default TeacherAulaView

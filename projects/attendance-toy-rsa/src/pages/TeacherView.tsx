@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react"
-import { Link } from "react-router-dom"
 import { useAttendance } from "../hooks/useAttendance"
 import type { AulaData } from "attendance"
 import Loading from "../components/Loading"
+import StateBadge from "../components/StateBadge"
+import Note from "../components/Note"
+import ClassListItem from "../components/ClassListItem"
 import styles from "./TeacherView.module.css"
 
 type ClassEntry = { id: bigint; data: AulaData }
@@ -138,18 +140,8 @@ const TeacherView: React.FC = () => {
 				</form>
 			</section>
 
-			{error && (
-				<div className="note note--error">
-					<span className="note__tag">error</span>
-					<span>{error}</span>
-				</div>
-			)}
-			{success && (
-				<div className="note note--success">
-					<span className="note__tag">ok</span>
-					<span>{success}</span>
-				</div>
-			)}
+			{error && <Note variant="error">{error}</Note>}
+			{success && <Note variant="success">{success}</Note>}
 
 			<section className="sheet">
 				<div className={styles.listHeader}>
@@ -163,27 +155,24 @@ const TeacherView: React.FC = () => {
 				</div>
 
 				{classes.length === 0 ? (
-					<p className={styles.empty}>
+					<p className="emptyLine">
 						No class opened yet. Open your first one above.
 					</p>
 				) : (
-					<ul className={styles.aulaList}>
+					<ul className="classList">
 						{classes.map((a) => (
 							<li key={a.id.toString()}>
-								<Link
+								<ClassListItem
 									to={`/host/class/${a.id.toString()}`}
-									className={styles.aulaItem}
-								>
-									<span className={styles.aulaIndex}>
-										№{a.id.toString().padStart(2, "0")}
-									</span>
-									<span className={styles.aulaName}>{a.data.name}</span>
-									<span className={styles.aulaMeta}>
-										<span>{a.data.students.length} participant(s)</span>
-										<StateBadge state={a.data.state.tag} />
-									</span>
-									<span className={styles.aulaArrow}>→</span>
-								</Link>
+									id={a.id}
+									name={a.data.name}
+									meta={
+										<>
+											<span>{a.data.students.length} participant(s)</span>
+											<StateBadge state={a.data.state.tag} />
+										</>
+									}
+								/>
 							</li>
 						))}
 					</ul>
@@ -191,18 +180,6 @@ const TeacherView: React.FC = () => {
 			</section>
 		</div>
 	)
-}
-
-const STATE_LABELS = {
-	Registration: { cls: "badge--registration", label: "Registration open" },
-	Challenging: { cls: "badge--challenging", label: "Challenges issued" },
-	Closed: { cls: "badge--closed", label: "Closed" },
-} as const
-
-const StateBadge: React.FC<{ state: string }> = ({ state }) => {
-	const s =
-		STATE_LABELS[state as keyof typeof STATE_LABELS] ?? STATE_LABELS.Closed
-	return <span className={`badge ${s.cls}`}>{s.label}</span>
 }
 
 export default TeacherView

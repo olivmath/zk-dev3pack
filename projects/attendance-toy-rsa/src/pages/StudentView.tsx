@@ -1,9 +1,13 @@
 import { useEffect, useState, useCallback } from "react"
-import { Link, useSearchParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 import { useAttendance } from "../hooks/useAttendance"
 import type { AulaData } from "attendance"
 import NftDiploma from "../components/NftDiploma"
 import Loading from "../components/Loading"
+import StateBadge from "../components/StateBadge"
+import Note from "../components/Note"
+import ClassListItem from "../components/ClassListItem"
+import { padClassId, truncateAddress } from "../util/format"
 import styles from "./StudentView.module.css"
 
 const POLL_MS = 3000
@@ -100,42 +104,35 @@ const JoinBrowse: React.FC = () => {
 				<h2 className="sheetTitle">Joined classes</h2>
 
 				{loading && classes.length === 0 ? (
-					<div className={styles.joinEmpty}>
-						<Loading
-							kicker="Reading"
-							title="Looking for your classes"
-							hint="Scanning the contract for any class you've joined."
-							full={false}
-						/>
-					</div>
+					<Loading
+						kicker="Reading"
+						title="Looking for your classes"
+						hint="Scanning the contract for any class you've joined."
+						full={false}
+					/>
 				) : classes.length === 0 ? (
-					<p className={styles.joinEmpty}>
+					<p className="emptyLine">
 						You haven't joined any class yet. Get a link from the host to
 						join one.
 					</p>
 				) : (
-					<ul className={styles.joinList}>
+					<ul className="classList">
 						{classes.map((c) => (
 							<li key={c.id.toString()}>
-								<Link
+								<ClassListItem
 									to={`/join?class=${c.id.toString()}`}
-									className={styles.joinItem}
-								>
-									<span className={styles.joinIndex}>
-										№{c.id.toString().padStart(2, "0")}
-									</span>
-									<span className={styles.joinName}>{c.data.name}</span>
-									<span className={styles.joinMeta}>
-										{c.nft !== null ? (
+									id={c.id}
+									name={c.data.name}
+									meta={
+										c.nft !== null ? (
 											<span className="badge badge--valid">
 												NFT #{c.nft.toString()}
 											</span>
 										) : (
 											<StateBadge state={c.data.state.tag} />
-										)}
-									</span>
-									<span className={styles.joinArrow}>→</span>
-								</Link>
+										)
+									}
+								/>
 							</li>
 						))}
 					</ul>
@@ -284,7 +281,7 @@ const JoinedClass: React.FC<{
 		return (
 			<div className="viewWrap">
 				<Loading
-					kicker={`Class №${aulaIdStr.padStart(2, "0")}`}
+					kicker={`Class №${padClassId(aulaIdStr)}`}
 					title="Loading the class"
 					hint="Reading state, challenge and your token from the contract."
 				/>
@@ -300,33 +297,18 @@ const JoinedClass: React.FC<{
 			<header className="viewHead">
 				<div className={styles.headRow}>
 					<div>
-						<span className="kicker">
-							Class №{aulaIdStr.padStart(2, "0")}
-						</span>
+						<span className="kicker">Class №{padClassId(aulaIdStr)}</span>
 						<h1 className="viewTitle">{aula.name}</h1>
 					</div>
 					<StateBadge state={stateLabel} />
 				</div>
 				<p className={styles.walletLine}>
-					Your wallet:{" "}
-					<code className="addr">
-						{address.slice(0, 8)}…{address.slice(-6)}
-					</code>
+					Your wallet: <code className="addr">{truncateAddress(address)}</code>
 				</p>
 			</header>
 
-			{error && (
-				<div className="note note--error">
-					<span className="note__tag">error</span>
-					<span>{error}</span>
-				</div>
-			)}
-			{success && (
-				<div className="note note--success">
-					<span className="note__tag">ok</span>
-					<span>{success}</span>
-				</div>
-			)}
+			{error && <Note variant="error">{error}</Note>}
+			{success && <Note variant="success">{success}</Note>}
 
 			{/* ─── State: registration open / not registered ─── */}
 			{stateLabel === "Registration" && !isRegistered && (
@@ -492,18 +474,6 @@ const JoinedClass: React.FC<{
 			)}
 		</div>
 	)
-}
-
-const STATE_LABELS = {
-	Registration: { cls: "badge--registration", label: "Registration open" },
-	Challenging: { cls: "badge--challenging", label: "Challenges issued" },
-	Closed: { cls: "badge--closed", label: "Closed" },
-} as const
-
-const StateBadge: React.FC<{ state: string }> = ({ state }) => {
-	const m =
-		STATE_LABELS[state as keyof typeof STATE_LABELS] ?? STATE_LABELS.Closed
-	return <span className={`badge ${m.cls}`}>{m.label}</span>
 }
 
 export default StudentView
