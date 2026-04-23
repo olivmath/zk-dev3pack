@@ -1,21 +1,164 @@
 import { useEffect, useState, useCallback } from "react"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { useAttendance } from "../hooks/useAttendance"
 import type { AulaData } from "attendance"
+import NftDiploma from "../components/NftDiploma"
+import Loading from "../components/Loading"
 import styles from "./StudentView.module.css"
 
 const POLL_MS = 3000
+
+type ParticipatedClass = { id: bigint; data: AulaData; nft: bigint | null }
 
 const StudentView: React.FC = () => {
 	const [params] = useSearchParams()
 	const aulaIdStr = params.get("class") ?? ""
 	const aulaId = aulaIdStr ? BigInt(aulaIdStr) : undefined
 
+	// If no class param: render the browse view (list + join form)
+	if (!aulaIdStr) {
+		return <JoinBrowse />
+	}
+
+	return <JoinedClass aulaIdStr={aulaIdStr} aulaId={aulaId} />
+}
+
+// ─────────────── Browse view (no class selected) ───────────────
+
+const JoinBrowse: React.FC = () => {
+	const { attendance, address } = useAttendance()
+	const [classes, setClasses] = useState<ParticipatedClass[]>([])
+	const [loading, setLoading] = useState(false)
+
+	useEffect(() => {
+		if (!address) return
+		let cancelled = false
+		setLoading(true)
+		;(async () => {
+			try {
+				const countTx = await attendance.aula_count()
+				const count = Number(countTx.result)
+				const out: ParticipatedClass[] = []
+				for (let i = 1; i <= count; i++) {
+					const id = BigInt(i)
+					const aulaTx = await attendance.get_aula({ aula_id: id })
+					const data = aulaTx.result
+					if (!data || !data.students.includes(address)) continue
+					let nft: bigint | null = null
+					if (data.state.tag === "Closed") {
+						const nftTx = await attendance.get_nft({
+							aula_id: id,
+							student: address,
+						})
+						nft = nftTx.result ?? null
+					}
+					out.push({ id, data, nft })
+				}
+				if (!cancelled) setClasses(out)
+			} finally {
+				if (!cancelled) setLoading(false)
+			}
+		})()
+		return () => {
+			cancelled = true
+		}
+	}, [address, attendance])
+
+	if (!address) {
+		return (
+			<div className="viewWrap">
+				<section className={`sheet ${styles.guard}`}>
+					<span className="kicker">Access</span>
+					<h2 className="sheetTitle">
+						Connect your <em>wallet</em>
+					</h2>
+					<p className="sheetSub">
+						Use the button in the top-right to connect Freighter, Albedo,
+						xBull or Lobstr — then you can browse the classes you've
+						joined.
+					</p>
+				</section>
+			</div>
+		)
+	}
+
+	return (
+		<div className="viewWrap">
+			<header className="viewHead">
+				<span className="kicker">Classes you've joined</span>
+				<h1 className="viewTitle">
+					Your <em>attendance</em>
+				</h1>
+				<p className="viewSub">
+					Every class you've registered for, plus the diplomas you've
+					already collected.
+				</p>
+			</header>
+
+			<section className="sheet">
+				<span className="kicker">Your roll-call history</span>
+				<h2 className="sheetTitle">Joined classes</h2>
+
+				{loading && classes.length === 0 ? (
+					<div className={styles.joinEmpty}>
+						<Loading
+							kicker="Reading"
+							title="Looking for your classes"
+							hint="Scanning the contract for any class you've joined."
+							full={false}
+						/>
+					</div>
+				) : classes.length === 0 ? (
+					<p className={styles.joinEmpty}>
+						You haven't joined any class yet. Get a link from the host to
+						join one.
+					</p>
+				) : (
+					<ul className={styles.joinList}>
+						{classes.map((c) => (
+							<li key={c.id.toString()}>
+								<Link
+									to={`/join?class=${c.id.toString()}`}
+									className={styles.joinItem}
+								>
+									<span className={styles.joinIndex}>
+										№{c.id.toString().padStart(2, "0")}
+									</span>
+									<span className={styles.joinName}>{c.data.name}</span>
+									<span className={styles.joinMeta}>
+										{c.nft !== null ? (
+											<span className="badge badge--valid">
+												NFT #{c.nft.toString()}
+											</span>
+										) : (
+											<StateBadge state={c.data.state.tag} />
+										)}
+									</span>
+									<span className={styles.joinArrow}>→</span>
+								</Link>
+							</li>
+						))}
+					</ul>
+				)}
+			</section>
+		</div>
+	)
+}
+
+// ─────────────── Joined class (with class param) ───────────────
+
+const JoinedClass: React.FC<{
+	aulaIdStr: string
+	aulaId: bigint | undefined
+}> = ({ aulaIdStr, aulaId }) => {
+
 	const { attendance, address, signAndSend } = useAttendance()
 
 	const [aula, setAula] = useState<AulaData | null>(null)
 	const [challenge, setChallenge] = useState<number | null>(null)
-	const [nftToken, setNftToken] = useState<bigint | null>(null)
+	// undefined = not fetched yet, null = no NFT for this user
+	const [nftToken, setNftToken] = useState<bigint | null | undefined>(undefined)
+	const [pubkey, setPubkey] = useState<{ n: number; e: number } | null>(null)
 	const [isRegistered, setIsRegistered] = useState(false)
 	const [hasValidSub, setHasValidSub] = useState(false)
 
@@ -54,6 +197,13 @@ const StudentView: React.FC = () => {
 					student: address,
 				})
 				setNftToken(nftTx.result ?? null)
+				const pkTx = await attendance.get_pubkey({
+					aula_id: aulaId,
+					student: address,
+				})
+				if (pkTx.result) {
+					setPubkey({ n: pkTx.result.n, e: pkTx.result.e })
+				}
 			}
 		} catch (err) {
 			console.error("refresh error", err)
@@ -113,21 +263,6 @@ const StudentView: React.FC = () => {
 	}
 
 	// ─── Guard states ───
-	if (!aulaId) {
-		return (
-			<div className="viewWrap">
-				<section className={`sheet ${styles.guard}`}>
-					<span className="kicker">No class</span>
-					<h2 className="sheetTitle">You need the class link</h2>
-					<p className="sheetSub">
-						Go back to <a href="/">the home screen</a> or paste the full
-						link someone shared (with <code>?class=N</code> at the end).
-					</p>
-				</section>
-			</div>
-		)
-	}
-
 	if (!address) {
 		return (
 			<div className="viewWrap">
@@ -148,11 +283,11 @@ const StudentView: React.FC = () => {
 	if (!aula) {
 		return (
 			<div className="viewWrap">
-				<section className={`sheet sheet--soft ${styles.guard}`}>
-					<p className={styles.loading}>
-						Loading class <strong>№{aulaIdStr}</strong>…
-					</p>
-				</section>
+				<Loading
+					kicker={`Class №${aulaIdStr.padStart(2, "0")}`}
+					title="Loading the class"
+					hint="Reading state, challenge and your token from the contract."
+				/>
 			</div>
 		)
 	}
@@ -322,25 +457,29 @@ const StudentView: React.FC = () => {
 				</section>
 			)}
 
-			{/* ─── Class closed with NFT ─── */}
-			{stateLabel === "Closed" && nftToken !== null && (
-				<section className={`sheet sheet--dark ${styles.diploma}`}>
-					<span className="kicker" style={{ color: "var(--gold-soft)" }}>
-						Diploma · Soulbound
-					</span>
-					<h2 className="sheetTitle">Presence recorded</h2>
-
-					<div className={styles.nftPlate}>
-						<span className={styles.nftHash}>#</span>
-						<span className={styles.nftId}>{nftToken.toString()}</span>
-					</div>
-
-					<p className={styles.diplomaCaption}>
-						<em>{aula.name}</em> · soulbound token issued by the contract
-					</p>
-				</section>
+			{/* ─── Class closed: still fetching the NFT ─── */}
+			{stateLabel === "Closed" && nftToken === undefined && (
+				<Loading
+					kicker="Class closed"
+					title="Reading your token"
+					hint="Checking the contract for your soulbound NFT."
+				/>
 			)}
 
+			{/* ─── Class closed with NFT ─── */}
+			{stateLabel === "Closed" && nftToken && address && (
+				<NftDiploma
+					tokenId={nftToken.toString()}
+					classId={aulaIdStr}
+					className={aula.name}
+					participant={address}
+					m={challenge}
+					n={pubkey?.n ?? null}
+					e={pubkey?.e ?? null}
+				/>
+			)}
+
+			{/* ─── Class closed without NFT ─── */}
 			{stateLabel === "Closed" && nftToken === null && (
 				<section className="sheet">
 					<span className="kicker">Class closed</span>

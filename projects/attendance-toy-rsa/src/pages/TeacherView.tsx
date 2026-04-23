@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useAttendance } from "../hooks/useAttendance"
 import type { AulaData } from "attendance"
+import Loading from "../components/Loading"
 import styles from "./TeacherView.module.css"
 
 type ClassEntry = { id: bigint; data: AulaData }
@@ -12,22 +13,27 @@ const TeacherView: React.FC = () => {
 	const [classes, setClasses] = useState<ClassEntry[]>([])
 	const [newName, setNewName] = useState("")
 	const [loading, setLoading] = useState(false)
+	const [firstLoading, setFirstLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [success, setSuccess] = useState<string | null>(null)
 
 	const refresh = useCallback(async () => {
 		if (!address) return
-		const countTx = await attendance.aula_count()
-		const count = Number(countTx.result)
-		const entries: ClassEntry[] = []
-		for (let i = 1; i <= count; i++) {
-			const aulaTx = await attendance.get_aula({ aula_id: BigInt(i) })
-			const data = aulaTx.result
-			if (data && data.teacher === address) {
-				entries.push({ id: BigInt(i), data })
+		try {
+			const countTx = await attendance.aula_count()
+			const count = Number(countTx.result)
+			const entries: ClassEntry[] = []
+			for (let i = 1; i <= count; i++) {
+				const aulaTx = await attendance.get_aula({ aula_id: BigInt(i) })
+				const data = aulaTx.result
+				if (data && data.teacher === address) {
+					entries.push({ id: BigInt(i), data })
+				}
 			}
+			setClasses(entries)
+		} finally {
+			setFirstLoading(false)
 		}
-		setClasses(entries)
 	}, [address, attendance])
 
 	useEffect(() => {
@@ -67,6 +73,18 @@ const TeacherView: React.FC = () => {
 						review the ones you've already created.
 					</p>
 				</div>
+			</div>
+		)
+	}
+
+	if (firstLoading) {
+		return (
+			<div className="viewWrap">
+				<Loading
+					kicker="Loading"
+					title="Fetching your classes"
+					hint="Walking the contract ledger for the classes you've opened."
+				/>
 			</div>
 		)
 	}

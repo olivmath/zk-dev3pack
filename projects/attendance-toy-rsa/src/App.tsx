@@ -49,6 +49,9 @@ const AppLayout: React.FC = () => {
 								<NavItem to="/host" current={pathname}>
 									My classes
 								</NavItem>
+								<NavItem to="/join" current={pathname}>
+									My attendance
+								</NavItem>
 							</nav>
 
 							<div className={styles.headerActions}>

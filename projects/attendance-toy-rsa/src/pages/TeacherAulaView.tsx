@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { useAttendance } from "../hooks/useAttendance"
 import type { AulaData } from "attendance"
+import Loading from "../components/Loading"
 import styles from "./TeacherView.module.css"
 
 const POLL_MS = 4000
@@ -160,12 +161,14 @@ const TeacherAulaView: React.FC = () => {
 	if (!aula) {
 		return (
 			<div className="viewWrap">
-				<section className="sheet sheet--soft">
-					<p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--ink-soft)" }}>
-						Loading class <strong>№{aulaIdStr}</strong>…
-					</p>
-					<Link to="/host" className="btn btn--ghost" style={{ marginTop: 16 }}>← Back to notebook</Link>
-				</section>
+				<Loading
+					kicker={`Class №${(aulaIdStr ?? "").padStart(2, "0")}`}
+					title="Loading class data"
+					hint="Reading roll-call, challenges and tokens from the contract."
+				/>
+				<div style={{ marginTop: 12 }}>
+					<Link to="/host" className="btn btn--ghost">← Back to notebook</Link>
+				</div>
 			</div>
 		)
 	}
