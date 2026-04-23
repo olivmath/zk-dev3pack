@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Presença Dev3Pack — Mock</title>
+<style>
+  :root {
+    --bg: #0b0d14; --panel: #151822; --panel2: #1c2030;
+    --border: #242938; --text: #e4e6eb; --muted: #8b8f99;
+    --accent: #ffb347; --success: #4ade80; --error: #f87171; --pending: #fbbf24;
+  }
+  * { box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
+  body { margin: 0; padding: 24px; background: var(--bg); color: var(--text); }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .desc { color: var(--muted); margin: 0 0 28px; font-size: 14px; }
+  h2 { font-size: 13px; color: var(--muted); margin: 28px 0 14px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+  .frame { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .frame-label { padding: 8px 12px; background: var(--panel2); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); font-weight: 600; }
+  .app-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--panel2); border-bottom: 1px solid var(--border); font-size: 12px; }
+  .app-header .title { font-weight: 600; }
+  .wallet-chip { color: var(--accent); font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .screen { padding: 20px; min-height: 260px; }
+  .screen h3 { margin: 0 0 6px; font-size: 15px; }
+  .screen .sub { color: var(--muted); font-size: 12px; margin-bottom: 14px; line-height: 1.5; }
+  input[type="text"], input[type="number"] { width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; }
+  .row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .row label { font-size: 12px; color: var(--muted); width: 30px; }
+  .row input { flex: 1; }
+  button { background: var(--accent); color: #000; border: 0; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; width: 100%; }
+  button.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  button.danger { background: var(--error); color: #000; }
+  button.sm { padding: 6px 10px; font-size: 11px; width: auto; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge.pending { background: rgba(251, 191, 36, 0.15); color: var(--pending); }
+  .badge.valid { background: rgba(74, 222, 128, 0.15); color: var(--success); }
+  .badge.invalid { background: rgba(248, 113, 113, 0.15); color: var(--error); }
+  .badge.reg { background: rgba(251, 191, 36, 0.15); color: var(--pending); }
+  .badge.chal { background: rgba(255, 179, 71, 0.2); color: var(--accent); }
+  .badge.closed { background: rgba(139, 143, 153, 0.2); color: var(--muted); }
+  .error-msg { background: rgba(248, 113, 113, 0.1); border: 1px solid var(--error); padding: 8px 10px; border-radius: 6px; color: var(--error); font-size: 12px; margin: 8px 0; }
+  .success-msg { background: rgba(74, 222, 128, 0.1); border: 1px solid var(--success); padding: 8px 10px; border-radius: 6px; color: var(--success); font-size: 12px; margin: 8px 0; }
+  .info-msg { background: rgba(255, 179, 71, 0.08); border: 1px solid var(--accent); padding: 10px 12px; border-radius: 6px; font-size: 12px; margin: 10px 0; line-height: 1.5; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 8px 0; }
+  table th { text-align: left; color: var(--muted); font-weight: 600; padding: 6px 4px; border-bottom: 1px solid var(--border); font-size: 11px; }
+  table td { padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  .mono { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .link-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--accent); margin: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .link-box button { width: auto; padding: 4px 10px; font-size: 11px; }
+  .nft-card { background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(74, 222, 128, 0.1)); border: 1px solid var(--accent); border-radius: 10px; padding: 20px; text-align: center; margin: 12px 0; }
+  .nft-card .big { font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: 1px; }
+  .nft-card .small { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .big-m { font-size: 42px; font-weight: 800; color: var(--accent); text-align: center; margin: 16px 0; font-family: ui-monospace, Menlo, monospace; }
+  .note { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .kv { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .kv:last-child { border-bottom: 0; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-family: ui-monospace, Menlo, monospace; }
+  .stack { display: flex; flex-direction: column; gap: 8px; }
+</style>
+</head>
+<body>
+  <h1>Presença Dev3Pack — Mock de Interfaces</h1>
+  <p class="desc">Todas as 12 telas da aplicação, agrupadas por ator. Sem JS, puro HTML/CSS.</p>
+
+  <h2>🎓 Aluno</h2>
+  <div class="grid">
+
+    <div class="frame">
+      <div class="frame-label">1 — Abre /?aula=1 (não registrado)</div>
+      <div class="app-header"><span class="title">Aula #1 — Toy RSA 23/04</span><span class="wallet-chip">GALU...F2KQ</span></div>
+      <div class="screen">
+        <h3>Registrar presença</h3>
+        <p class="sub">Calcule seu par (n, e, d) na mão. Envie só (n, e). O d fica no papel — não digite em lugar nenhum.</p>
+        <div class="row"><label>n</label><input type="number" value="77"></div>
+        <div class="row"><label>e</label><input type="number" value="7"></div>
+        <button>Registrar na aula</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">2 — Registrado, aguardando</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge reg">Registro</span></span><span class="wallet-chip">GALU...F2KQ</span></div>
+      <div class="screen">
+        <h3>Registrado ✓</h3>
+        <div class="kv"><span class="k">sua (n, e)</span><span class="v">(77, 7)</span></div>
+        <div class="kv"><span class="k">alunos na aula</span><span class="v">8</span></div>
+        <div class="info-msg"><span class="spinner"></span>aguardando a professora lançar o desafio...</div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">3 — Desafio recebido</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge chal">Desafios</span></span><span class="wallet-chip">GALU...F2KQ</span></div>
+      <div class="screen">
+        <h3>Seu desafio chegou</h3>
+        <p class="sub">Calcule <span class="mono">s = m^d mod n</span> usando seu d do papel. Depois submeta.</p>
+        <div class="big-m">m = 2</div>
+        <div class="row"><label>s</label><input type="number" placeholder="digite s"></div>
+        <button>Assinar</button>
+        <p class="note">pode tentar quantas vezes quiser até fechar a aula</p>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">4 — Assinatura errada</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge chal">Desafios</span></span><span class="wallet-chip">GALU...F2KQ</span></div>
+      <div class="screen">
+        <h3>Seu desafio</h3>
+        <div class="big-m">m = 2</div>
+        <div class="row"><label>s</label><input type="number" value="45"></div>
+        <div class="error-msg">❌ Assinatura inválida. 45^7 mod 77 ≠ 2. Confira sua conta e tenta de novo.</div>
+        <button>Assinar</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">5 — Assinatura aceita</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge chal">Desafios</span></span><span class="wallet-chip">GALU...F2KQ</span></div>
+      <div class="screen">
+        <h3>Assinatura aceita ✓</h3>
+        <div class="success-msg">✅ 30^7 mod 77 = 2. Válido!</div>
+        <div class="kv"><span class="k">seu m</span><span class="v">2</span></div>
+        <div class="kv"><span class="k">seu s</span><span class="v">30</span></div>
+        <div class="info-msg"><span class="spinner"></span>aguardando fechamento da aula pra emitir o NFT...</div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">6 — Aula fechada, NFT recebido</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge closed">Fechada</span></span><span class="wallet-chip">GALU...F2KQ</span></div>
+      <div class="screen">
+        <h3>Presença registrada 🎉</h3>
+        <div class="nft-card">
+          <div class="big">TOKEN #3</div>
+          <div class="small">Aula 23/04 — Toy RSA</div>
+          <div class="small">Soulbound — não transferível</div>
+        </div>
+        <p class="note">tx: 4f2b...a91c — ver no StellarExpert ↗</p>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>👩‍🏫 Professora</h2>
+  <div class="grid">
+
+    <div class="frame">
+      <div class="frame-label">7 — /prof dashboard</div>
+      <div class="app-header"><span class="title">Minhas aulas</span><span class="wallet-chip">GPROF...M1LICA</span></div>
+      <div class="screen">
+        <div class="stack">
+          <div class="kv"><span class="k">Aula #1 — 23/04</span><span class="badge chal">Desafios</span></div>
+          <div class="kv"><span class="k">Aula #2 — 16/04</span><span class="badge closed">Fechada</span></div>
+          <div class="kv"><span class="k">Aula #3 — 09/04</span><span class="badge closed">Fechada</span></div>
+        </div>
+        <div style="margin-top: 16px;"><button>+ Criar nova aula</button></div>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">8 — Criar aula (modal)</div>
+      <div class="app-header"><span class="title">Nova aula</span><span class="wallet-chip">GPROF...M1LICA</span></div>
+      <div class="screen">
+        <h3>Criar aula</h3>
+        <p class="sub">Após criar, compartilhe o link com os alunos.</p>
+        <div class="row"><input type="text" value="Aula 30/04 — Toy RSA"></div>
+        <button>Criar aula</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">9 — Aula em Registro</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge reg">Registro</span></span><span class="wallet-chip">GPROF...M1LICA</span></div>
+      <div class="screen">
+        <div class="info-msg">Compartilhe esse link com a turma:</div>
+        <div class="link-box"><span>app.com/?aula=1</span><button class="sm">copiar</button></div>
+        <table>
+          <tr><th>aluno</th><th>(n, e)</th></tr>
+          <tr><td class="mono">GALU...F2KQ</td><td class="mono">(77, 7)</td></tr>
+          <tr><td class="mono">GBRU...N8PL</td><td class="mono">(77, 7)</td></tr>
+          <tr><td class="mono">GCAR...X4RD</td><td class="mono">(91, 5)</td></tr>
+        </table>
+        <p class="note">3 alunos registrados</p>
+        <button style="margin-top:12px;">Lançar desafios</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">10 — Lançar desafios (modal)</div>
+      <div class="app-header"><span class="title">Lançar desafios — Aula #1</span><span class="wallet-chip">GPROF...M1LICA</span></div>
+      <div class="screen">
+        <p class="sub">Digite o m pra cada aluno ou clique em auto-fill.</p>
+        <div style="margin-bottom: 10px;"><button class="ghost sm">⚡ Auto-fill todos</button></div>
+        <table>
+          <tr><th>aluno</th><th>n</th><th>m</th><th></th></tr>
+          <tr><td class="mono">GALU...F2KQ</td><td>77</td><td><input type="number" value="2" style="width:60px"></td><td><button class="ghost sm">🎲</button></td></tr>
+          <tr><td class="mono">GBRU...N8PL</td><td>77</td><td><input type="number" value="5" style="width:60px"></td><td><button class="ghost sm">🎲</button></td></tr>
+          <tr><td class="mono">GCAR...X4RD</td><td>91</td><td><input type="number" placeholder="..." style="width:60px"></td><td><button class="ghost sm">🎲</button></td></tr>
+        </table>
+        <button style="margin-top: 12px;">Confirmar e lançar</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">11 — Aula em Desafios</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge chal">Desafios</span></span><span class="wallet-chip">GPROF...M1LICA</span></div>
+      <div class="screen">
+        <table>
+          <tr><th>aluno</th><th>m</th><th>status</th></tr>
+          <tr><td class="mono">GALU...F2KQ</td><td>2</td><td><span class="badge valid">Assinou</span></td></tr>
+          <tr><td class="mono">GBRU...N8PL</td><td>5</td><td><span class="badge valid">Assinou</span></td></tr>
+          <tr><td class="mono">GCAR...X4RD</td><td>7</td><td><span class="badge pending">Aguardando</span></td></tr>
+        </table>
+        <p class="note">2 de 3 assinaram. Clique em fechar pra mintar os NFTs.</p>
+        <button class="danger" style="margin-top:12px;">Fechar aula e emitir NFTs</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-label">12 — Aula fechada (resumo)</div>
+      <div class="app-header"><span class="title">Aula #1 <span class="badge closed">Fechada</span></span><span class="wallet-chip">GPROF...M1LICA</span></div>
+      <div class="screen">
+        <div class="success-msg">✅ 2 NFTs emitidos com sucesso</div>
+        <table>
+          <tr><th>aluno</th><th>token</th><th>status</th></tr>
+          <tr><td class="mono">GALU...F2KQ</td><td>#1</td><td><span class="badge valid">Presente</span></td></tr>
+          <tr><td class="mono">GBRU...N8PL</td><td>#2</td><td><span class="badge valid">Presente</span></td></tr>
+          <tr><td class="mono">GCAR...X4RD</td><td>—</td><td><span class="badge invalid">Faltou</span></td></tr>
+        </table>
+        <p class="note">total: 3 alunos, 2 presentes, 1 faltou</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

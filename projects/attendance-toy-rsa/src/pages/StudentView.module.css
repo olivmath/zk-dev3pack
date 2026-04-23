@@ -1,0 +1,201 @@
+/* ─── StudentView ──────────────────────────────────────── */
+
+.guard {
+	margin-top: 32px;
+	max-width: 560px;
+}
+
+.loading {
+	font-family: var(--font-display);
+	font-style: italic;
+	color: var(--ink-soft);
+	margin: 0;
+	font-size: 1.05rem;
+}
+
+.headRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.walletLine {
+	font-family: var(--font-body);
+	font-size: 0.88rem;
+	color: var(--ink-faint);
+	margin: 12px 0 0;
+}
+
+.walletLine code {
+	background: transparent;
+	padding: 0;
+	color: var(--ink-soft);
+	font-size: 0.8rem;
+}
+
+.fineLine {
+	font-family: var(--font-body);
+	font-size: 0.85rem;
+	color: var(--ink-faint);
+	font-style: italic;
+	margin: 14px 0 0;
+}
+
+/* ─── Registro: campos n e e ─── */
+.keyGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr auto;
+	gap: 18px;
+	align-items: end;
+	margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+	.keyGrid { grid-template-columns: 1fr; }
+}
+
+/* ─── Desafio: m gigante ─── */
+.challengeStage {
+	margin: 28px 0 24px;
+	padding: 32px 24px;
+	background:
+		linear-gradient(rgba(243, 236, 220, 0.6), rgba(243, 236, 220, 0.6)),
+		repeating-linear-gradient(
+			to bottom,
+			transparent 0,
+			transparent 31px,
+			rgba(184, 137, 58, 0.18) 31px,
+			rgba(184, 137, 58, 0.18) 32px
+		);
+	border: 1px dashed var(--rule);
+	display: flex;
+	justify-content: center;
+	align-items: baseline;
+	position: relative;
+}
+
+.challengeStage::before,
+.challengeStage::after {
+	content: "✦";
+	position: absolute;
+	top: 12px;
+	color: var(--vermillion);
+	font-size: 0.9rem;
+	opacity: 0.6;
+}
+
+.challengeStage::before { left: 18px; }
+.challengeStage::after { right: 18px; }
+
+.challengeFormula {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 14px;
+	font-family: var(--font-display);
+}
+
+.challengeLabel {
+	font-size: 2.2rem;
+	font-style: italic;
+	color: var(--ink-soft);
+	letter-spacing: -0.02em;
+}
+
+.challengeM {
+	font-family: var(--font-display);
+	font-size: clamp(4.5rem, 12vw, 7rem);
+	font-weight: 500;
+	line-height: 1;
+	letter-spacing: -0.05em;
+	color: var(--vermillion);
+	text-shadow: 2px 2px 0 rgba(184, 52, 31, 0.12);
+}
+
+/* ─── Assinatura ─── */
+.signGrid {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 18px;
+	align-items: end;
+	margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+	.signGrid { grid-template-columns: 1fr; }
+}
+
+/* ─── NFT diploma ─── */
+.diploma {
+	text-align: center;
+	padding: 40px 32px;
+	background: var(--chalkboard);
+	background-image:
+		radial-gradient(circle at 20% 30%, rgba(243, 236, 220, 0.04) 0, transparent 50%),
+		radial-gradient(circle at 80% 70%, rgba(184, 137, 58, 0.08) 0, transparent 50%);
+	color: var(--paper);
+	position: relative;
+	overflow: hidden;
+}
+
+.diploma::before {
+	content: "";
+	position: absolute;
+	inset: 12px;
+	border: 1px solid rgba(243, 236, 220, 0.18);
+	pointer-events: none;
+}
+
+.diploma::after {
+	content: "";
+	position: absolute;
+	inset: 18px;
+	border: 1px dashed rgba(184, 137, 58, 0.4);
+	pointer-events: none;
+}
+
+.diploma .sheetTitle {
+	color: var(--paper);
+	font-style: italic;
+	font-weight: 400;
+	margin: 6px 0 12px;
+}
+
+.nftPlate {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 6px;
+	margin: 18px 0 12px;
+	color: var(--gold-soft);
+	font-family: var(--font-display);
+	letter-spacing: -0.04em;
+}
+
+.nftHash {
+	font-size: 2.2rem;
+	font-weight: 300;
+	font-style: italic;
+	color: var(--gold);
+}
+
+.nftId {
+	font-size: clamp(4rem, 10vw, 6rem);
+	font-weight: 500;
+	line-height: 1;
+	color: var(--gold-soft);
+	text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.diplomaCaption {
+	font-family: var(--font-body);
+	font-size: 0.92rem;
+	color: rgba(243, 236, 220, 0.7);
+	margin: 8px 0 0;
+	font-style: italic;
+}
+
+.diplomaCaption em {
+	color: var(--paper);
+	font-style: italic;
+}

@@ -1,0 +1,349 @@
+/* ───────────────────────────────────────────────────────
+   Landing — tutorial de Toy RSA
+   ─────────────────────────────────────────────────────── */
+
+.page {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 56px 32px 120px;
+	display: flex;
+	flex-direction: column;
+	gap: 96px;
+	animation: ink-fade 480ms ease both;
+}
+
+/* ─── Row primitive ────────────────────────────────────── */
+
+.row {
+	display: grid;
+	grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+	gap: 72px;
+	align-items: center;
+}
+
+/* ─── HERO ─────────────────────────────────────────────── */
+
+.hero {
+	padding-top: 24px;
+	padding-bottom: 64px;
+	border-bottom: 1px solid var(--rule);
+	align-items: end;
+	grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+}
+
+.heroLeft {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 56ch;
+}
+
+.kicker {
+	font-family: var(--font-mono);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.24em;
+	color: var(--vermillion);
+	font-weight: 500;
+}
+
+.title {
+	font-family: var(--font-display);
+	font-size: clamp(2.6rem, 6.4vw, 4.8rem);
+	line-height: 0.96;
+	letter-spacing: -0.038em;
+	font-weight: 350;
+	margin: 0;
+	color: var(--ink);
+}
+
+.titleEm {
+	font-style: italic;
+	font-weight: 400;
+	color: var(--vermillion);
+	font-feature-settings: "ss01";
+}
+
+.lede {
+	font-family: var(--font-body);
+	font-size: 1.12rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+	margin: 0;
+	max-width: 56ch;
+}
+
+.heroCta {
+	display: flex;
+	gap: 14px;
+	flex-wrap: wrap;
+	margin-top: 8px;
+}
+
+.heroRight {
+	position: relative;
+	display: flex;
+	justify-content: center;
+}
+
+.paperSvg {
+	width: 100%;
+	max-width: 360px;
+	height: auto;
+	filter: drop-shadow(0 14px 28px rgba(26, 23, 20, 0.18))
+		drop-shadow(0 2px 4px rgba(26, 23, 20, 0.1));
+	animation: ink-fade 700ms 200ms ease both;
+}
+
+/* ─── STEPS ────────────────────────────────────────────── */
+
+.step {
+	padding: 32px 0;
+	position: relative;
+}
+
+.step::before {
+	content: "";
+	position: absolute;
+	top: -48px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 1px;
+	height: 48px;
+	background: linear-gradient(to bottom, transparent, var(--rule));
+}
+
+.stepReverse {
+	direction: rtl;
+}
+
+.stepReverse > * {
+	direction: ltr;
+}
+
+.stepText {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	max-width: 52ch;
+	position: relative;
+}
+
+.stepIndex {
+	font-family: var(--font-display);
+	font-style: italic;
+	font-weight: 300;
+	font-size: 5rem;
+	line-height: 0.9;
+	color: var(--ink-faint);
+	letter-spacing: -0.04em;
+	margin-bottom: -12px;
+	opacity: 0.45;
+}
+
+.stepTitle {
+	font-family: var(--font-display);
+	font-size: clamp(2rem, 3.8vw, 2.8rem);
+	line-height: 1.05;
+	letter-spacing: -0.025em;
+	font-weight: 400;
+	margin: 0;
+	color: var(--ink);
+}
+
+.stepTitle em {
+	font-style: italic;
+	color: var(--vermillion);
+	font-weight: 400;
+	font-family: var(--font-display);
+}
+
+.stepBody {
+	font-family: var(--font-body);
+	font-size: 1.05rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0;
+}
+
+.stepBody code {
+	font-size: 0.9em;
+}
+
+.stepImage {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 360px;
+}
+
+/* ─── CTA final ───────────────────────────────────────── */
+
+.endCta {
+	border-top: 1px solid var(--rule);
+	padding-top: 64px;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	align-items: flex-start;
+	max-width: 64ch;
+}
+
+.endTitle {
+	font-family: var(--font-display);
+	font-size: clamp(2rem, 4vw, 2.8rem);
+	line-height: 1.05;
+	letter-spacing: -0.025em;
+	font-weight: 400;
+	margin: 0;
+}
+
+.endTitle em {
+	font-style: italic;
+	color: var(--vermillion);
+	font-weight: 400;
+}
+
+.endLede {
+	font-family: var(--font-body);
+	font-size: 1.08rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+	margin: 0 0 12px;
+}
+
+.endRow {
+	display: flex;
+	gap: 14px;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
+/* ─── Botões ──────────────────────────────────────────── */
+
+.primaryCta {
+	font-family: var(--font-mono);
+	font-size: 0.84rem;
+	text-transform: uppercase;
+	letter-spacing: 0.18em;
+	font-weight: 600;
+	background: var(--vermillion);
+	color: var(--paper);
+	border: 1px solid var(--vermillion);
+	padding: 14px 22px;
+	cursor: pointer;
+	border-radius: 0;
+	text-decoration: none;
+	transition: background 140ms ease, transform 120ms ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.primaryCta:hover {
+	background: var(--vermillion-dim);
+	color: var(--paper);
+	border-color: var(--vermillion-dim);
+}
+
+.primaryCta:active {
+	transform: translateY(1px);
+}
+
+.secondaryCta {
+	font-family: var(--font-mono);
+	font-size: 0.84rem;
+	text-transform: uppercase;
+	letter-spacing: 0.18em;
+	font-weight: 600;
+	background: transparent;
+	color: var(--ink);
+	border: 1px solid var(--ink);
+	padding: 14px 22px;
+	cursor: pointer;
+	border-radius: 0;
+	text-decoration: none;
+	transition: background 140ms ease, color 140ms ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.secondaryCta:hover {
+	background: var(--ink);
+	color: var(--paper);
+}
+
+/* ─── Aviso ───────────────────────────────────────────── */
+
+.warning {
+	font-family: var(--font-body);
+	font-size: 0.95rem;
+	color: var(--ink-soft);
+	background: rgba(184, 52, 31, 0.06);
+	border-left: 3px solid var(--vermillion);
+	padding: 16px 20px;
+	margin: 32px 0 0;
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	flex-wrap: wrap;
+	max-width: none;
+	font-style: italic;
+}
+
+.warningTag {
+	font-family: var(--font-mono);
+	font-style: normal;
+	font-size: 0.65rem;
+	text-transform: uppercase;
+	letter-spacing: 0.22em;
+	color: var(--vermillion);
+	font-weight: 600;
+	background: var(--paper);
+	padding: 3px 8px;
+	border: 1px solid var(--vermillion);
+}
+
+.warning code {
+	font-style: normal;
+}
+
+/* ─── Responsivo ──────────────────────────────────────── */
+
+@media (max-width: 880px) {
+	.page {
+		padding: 32px 20px 80px;
+		gap: 64px;
+	}
+
+	.row {
+		grid-template-columns: 1fr;
+		gap: 36px;
+	}
+
+	.hero {
+		grid-template-columns: 1fr;
+		padding-bottom: 40px;
+	}
+
+	.stepReverse {
+		direction: ltr;
+	}
+
+	.stepImage {
+		min-height: 280px;
+	}
+
+	.paperSvg {
+		max-width: 280px;
+	}
+
+	.stepIndex {
+		font-size: 3.6rem;
+	}
+
+	.step::before {
+		display: none;
+	}
+}
