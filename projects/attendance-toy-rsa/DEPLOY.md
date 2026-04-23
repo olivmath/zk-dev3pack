@@ -14,7 +14,7 @@
    PUBLIC_STELLAR_NETWORK_PASSPHRASE   = Test SDF Network ; September 2015
    PUBLIC_STELLAR_RPC_URL              = https://soroban-testnet.stellar.org
    PUBLIC_STELLAR_HORIZON_URL          = https://horizon-testnet.stellar.org
-   PUBLIC_ATTENDANCE_CONTRACT_ID       = CBJ3FZJ7CRJROPLFBWHUKXCX6EH3R3GEXSQBNCYRLWJJ24K6I6TERXFZ
+   PUBLIC_ATTENDANCE_CONTRACT_ID       = CDNQA5P2EOSRGAS4DTZKVTZRVWEDWTFRG7NZDUOBLU3X3PCUOAHF7NSY
    ```
 
    (Use the contract ID from your `.env` if you redeploy the contract.)
