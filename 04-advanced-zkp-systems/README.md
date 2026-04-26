@@ -10,7 +10,7 @@
 | **Leitura** | _papers prometidos pela instrutora — pendentes_ |
 | **Transcrição crua** | [`transcript-raw.md`](./transcript-raw.md) |
 
-> Apesar do título "Advanced Systems", o conteúdo prático da aula foi inteiramente dedicado a **KZG** (Kate-Zaverucha-Goldberg), feito à mão num quadro digital com um exemplo numérico pequeno (módulo 7). Esta sessão funciona, na prática, como a aula `03b — Additional Session — KZG` que estava marcada como TBD.
+> Apesar do título "Advanced Systems", o conteúdo prático da aula foi inteiramente dedicado a **KZG** (Kate-Zaverucha-Goldberg), feito à mão num quadro digital com um exemplo numérico pequeno (módulo 7).
 
 ---
 

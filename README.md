@@ -16,7 +16,6 @@ Cada pasta corresponde a uma sessão e contém:
 | 01 | [Foundations of Cryptography](./01-foundations-of-cryptography/) | 14 abr | ✅ |
 | 02 | [Essential Tools of Modern Cryptography](./02-essential-tools-modern-crypto/) | 16 abr | ✅ |
 | 03 | [ZKP Basics](./03-zkp-basics/) | 21 abr | ✅ |
-| 03b | [Additional Session — KZG](./03b-additional-kzg/) | _coberto na S4_ | ➡️ |
 | 04 | [Advanced ZK Proof Systems & KZG](./04-advanced-zkp-systems/) | 23 abr | ✅ |
 | 05 | [ZK App Architecture & Intro to Circom](./05-circom-zk-app-architecture/) | 28 abr | ⏳ |
 | 06 | [Semaphore Protocol](./06-semaphore-protocol/) | 30 abr | ⏳ |
