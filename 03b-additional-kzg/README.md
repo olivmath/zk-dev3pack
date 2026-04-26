@@ -2,12 +2,8 @@
 
 | | |
 |---|---|
-| **Data** | TBD |
-| **Status** | ⏳ aguardando material e gravação |
+| **Status** | ➡️ coberto na S4 |
 
-Sessão extra sobre KZG (Kate-Zaverucha-Goldberg) que aparece no Classroom mas ainda não foi ministrada/gravada.
+O conteúdo de KZG que estava previsto para esta sessão extra foi integralmente coberto na **[Sessão 4 — Advanced ZK Proof Systems & KZG](../04-advanced-zkp-systems/)**, que dedicou ~1h ao walkthrough numérico completo do esquema (setup, commitment, evaluation, witness, verification).
 
-Quando o material sair, esta pasta vai conter:
-- `README.md` com notas estruturadas, comentários técnicos e exercícios
-- `transcript-raw.md` (transcrição via NotebookLM)
-- Slides e leituras complementares
+Esta pasta fica como placeholder histórico do plano original do bootcamp.
