@@ -1,142 +1,69 @@
-# S5 — ZK App Architecture & Intro to Circom
+# Circom não é uma linguagem de programação
 
-| | |
-|---|---|
-| **Data** | 28 de abril de 2026 |
-| **Instrutora** | Milica ([@0xMilica](https://x.com/0xMilica)) |
-| **Duração** | 1h45 |
-| **Vídeo** | https://www.youtube.com/watch?v=tK2pwF74vcY |
-| **Playground** | https://zkrepl.dev (sem instalação local) |
-| **Leitura** | [`reading-week3-circom.pdf`](./reading-week3-circom.pdf) |
-| **Transcrição crua** | [`transcript-raw.md`](./transcript-raw.md) |
+Você abre seu primeiro arquivo `.circom`, vê palavras familiares — `template`, `signal`, `component` — e seu cérebro de programador faz o que sempre faz: tenta encaixar isso num modelo conhecido. Função? Classe? Módulo? Nada bate. E quando você tenta escrever `if (x > 0) { y = 1 }`, o compilador resmunga, você googla, encontra um Stack Overflow de 2021 dizendo "use `IsZero()` da circomlib", e a sensação é de que algo está errado *com você*.
 
-> Primeira aula 100% prática: zero novas teorias, foco em **escrever circuito** num REPL online. A instrutora muda de framing — Circom **não é uma linguagem de programação**, é uma **HDL** (hardware description language). Esse shift de mindset é o conteúdo central.
+Não está. Circom não é uma linguagem de programação. É uma **linguagem de descrição de hardware** — uma HDL, prima distante de Verilog e VHDL — adaptada para descrever um tipo muito específico de hardware: o **circuito aritmético** que vira a base de uma prova zero-knowledge. Antes de aprender a sintaxe, você precisa fazer um pequeno reset mental. Esse texto é sobre esse reset.
 
 ---
 
-## Notas estruturadas da aula
+## A confusão começa pelo nome
 
-### 1. Por que Circom não é "uma linguagem comum"
+"Linguagem" carrega bagagem. Uma linguagem de programação descreve **um processo no tempo**: faz isso, depois aquilo, se der ruim repete, retorna o resultado. O fluxo é a essência. Variáveis mudam, loops giram, exceções estouram.
 
-Circom não tem classes, nem interfaces, nem o controle de fluxo que você espera de Python/Solidity/Rust. Ela descreve **circuitos aritméticos**: um grafo de **wires** (sinais) e **gates** (operações) num finite field. Quem já mexeu com VHDL/Verilog sente em casa; quem não, precisa fazer um pequeno reset mental.
+Uma HDL descreve **um objeto no espaço**: aqui tem um fio, ali tem um portão lógico, este fio entra naquele portão e o resultado sai por outro fio. Não há "depois". Tudo existe simultaneamente, como existe simultaneamente o circuito de uma placa-mãe. Quando você escreve VHDL, você não está escrevendo um programa — está desenhando hardware.
 
-| Você está acostumado a | Circom pensa assim |
-|---|---|
-| `if`, `for`, side effects, mutation | Fluxo é o circuito; loops servem só para *gerar* o circuito em compile-time |
-| "Calcular" um valor | **Vincular** um sinal a uma equação que precisa ser satisfeita |
-| Função retorna valor | Template emite **constraints** que prover/verifier vão validar |
+Circom faz a mesma coisa, mas o "hardware" final não é silício: é um sistema de equações matemáticas chamado **R1CS** (rank-1 constraint system). E o objetivo desse sistema não é computar — é **deixar-se verificar**. Você descreve um circuito; o compilador transforma em equações; outra ferramenta (snarkjs, geralmente) gera, a partir dessas equações, uma **prova criptográfica** de que alguém sabe valores que satisfazem todas elas, sem revelar quais valores são.
 
-A frase que resume: *"em vez de dizer 'eu fiz uma multiplicação', o prover diz 'eu satisfaço estas equações'."*
+Esse é o tijolo de toda dApp ZK que você já ouviu falar — Tornado Cash, zkSync, Aztec, Worldcoin. Por baixo de cada uma há circuitos Circom (ou seu primo Halo2/Noir) descrevendo o que precisa ser verdade.
 
-### 2. Vocabulário — wires, gates, signals
+---
 
-**Sinais** são as variáveis do circuito. Três tipos:
+## O que é um circuito aritmético
 
-| Tipo | Declaração | Papel |
-|---|---|---|
-| Input | `signal input a;` | entra externamente (público ou privado) |
-| Output | `signal output c;` | sai do circuito (geralmente público) |
-| Intermediário | `signal helper;` | calculado dentro, não exposto |
+Imagine uma planilha. Cada célula é um número. Cada célula computada é uma fórmula que combina outras células com `+` e `*`. Sem `if`, sem `for`, sem strings. Só números num **campo finito** (pense `mod p` para um primo gigante) e duas operações.
 
-**Gates** são as operações que conectam sinais. Cada gate recebe wires, produz wires.
+Agora imagine que sua tarefa é provar para alguém que existe uma combinação de valores nas células de entrada que faz a célula final dar `42` — sem revelar os valores intermediários. Isso é, em essência, o que um circuito aritmético modela e o que uma prova ZK demonstra.
 
-### 3. Operadores — assignment vs constraint
-
-Esse é o ponto mais confundido por iniciantes:
-
-| Operador | Faz | Quando usar |
-|---|---|---|
-| `<--` | só assignment (sem constraint) | gerar valor "fora" do sistema (raro, usar com cuidado) |
-| `===` | só constraint (sem assignment) | enforçar igualdade entre sinais já calculados |
-| `<==` | assignment **+** constraint | o que você usa **99% do tempo** |
-
-> ⚠️ Usar `<--` sem um `===` correspondente é a fonte clássica de bug em Circom: o circuito "compila e roda" mas o valor não é checado pelo verifier — *underconstrained circuit*. Audits de Circom buscam exatamente esse padrão.
-
-### 4. Rank-1 Constraint System (R1CS)
-
-R1CS é a forma canônica que Circom emite. Cada constraint tem o formato:
+O detalhe técnico que muda tudo é o seguinte: o sistema de provas (Groth16, PLONK, Halo2) só aceita equações com uma forma muito específica:
 
 ```
-(combinação linear) · (combinação linear) = (combinação linear)
+(combinação linear de sinais) × (combinação linear) = (combinação linear)
 ```
 
-**Quadrático no máximo.** Significa que multiplicação de **3 ou mais** sinais não cabe em uma única constraint — você precisa de sinais intermediários (helpers).
+Uma multiplicação. Uma só. Por equação.
 
-Exemplo: `m = a · b · c` precisa virar:
+Daí vem a primeira regra estranha de Circom: você não pode escrever `m = a * b * c` em uma linha. Tem que decompor:
 
 ```circom
 helper <== a * b;
 m      <== helper * c;
 ```
 
-São duas constraints, não uma. Esse "flattening" é *o trabalho* de quem escreve Circom.
+Não é capricho da linguagem. É consequência matemática direta do sistema de provas. Toda vez que você "flatten" um polinômio em mais sinais intermediários, você está pagando o preço de admissão para o teatro do zk-SNARK.
 
-### 5. Flattening de polinômios
+---
 
-Polinômio: `f(x) = 3x² + 2x + 2`. Não dá pra escrever `out <== 3*x*x + 2*x + 2;` direto porque `x*x` é não-quadrático junto com o resto. Você flatten para uma árvore de gates:
+## O alfabeto
 
-```
-                +
-              /   \
-             *     2
-           /   \
-          x     ?
-              ...
-```
+São três tipos de sinais e três operadores. Pegou estes seis, pegou Circom.
 
-Cada folha é input/constante, cada nó interno é um gate (mul/add). A versão Circom (uma forma):
+**Sinais** são os fios do circuito. Existem três variantes: input, output e intermediário. Inputs entram externamente — alguns públicos (todo mundo vê), outros privados (só o prover sabe; o verifier confia que existem). Outputs saem do circuito e são sempre públicos. Intermediários são scaffolding interno.
 
-```circom
-template Quadratic() {
-    signal input x;
-    signal output out;
+**Operadores** parecem similares mas fazem coisas diferentes:
 
-    signal x2;
-    x2  <== x * x;
-    out <== 3*x2 + 2*x + 2;
-}
-```
+- `<--` faz só atribuição. O sinal recebe um valor mas o sistema de provas não verifica nada sobre ele.
+- `===` faz só restrição. Diz "esses dois sinais têm que ser iguais" — verificável, mas não atribui valor.
+- `<==` faz as duas coisas: atribui e verifica.
 
-> A árvore **não precisa estar balanceada**. Otimização vem depois — primeiro, faça compilar.
+Em circuito honesto, você usa `<==` em quase tudo. O `<--` existe para casos em que você precisa calcular algo de um jeito que o R1CS não consegue expressar diretamente (uma raiz quadrada, por exemplo) e depois usa `===` para amarrar o resultado a uma restrição que *consegue* ser expressa (`raiz * raiz === entrada`).
 
-### 6. Lei de Kirchhoff como mnemônico
+A pegadinha clássica — fonte de bugs caros em produção — é usar `<--` e esquecer do `===`. O circuito compila. Os testes do desenvolvedor passam. Mas o sistema fica **underconstrained**: o prover pode forjar uma "witness" com qualquer valor naquele sinal e a prova ainda valida. Auditoria de circuitos zk é, em grande parte, caçar exatamente isso.
 
-Como ajuda mental: trate cada gate como um nó elétrico. **Tudo que entra menos tudo que sai = 0.** Se você está com mais inputs do que sabe gastar, faltou helper. Se está com sinal sobrando sem constraint, vai dar underconstrained.
+---
 
-### 7. Hands-on no zkREPL
+## Um exemplo que cabe na cabeça
 
-Não precisa instalar Rust toolchain — o **zkREPL** (https://zkrepl.dev) compila e roda Circom no browser, com escolha de proving system (Groth16 ou PLONK).
-
-#### Exemplo 1 — `Mul3` (multiplicar 3 inputs)
-
-```circom
-pragma circom 2.1.6;
-
-template Mul3() {
-    signal input a;
-    signal input b;
-    signal input c;
-    signal output m;
-
-    signal helper;
-    helper <== a * b;
-    m      <== helper * c;
-}
-
-component main = Mul3();
-
-/* INPUT = {
-    "a": "3",
-    "b": "4",
-    "c": "5"
-} */
-```
-
-Atalho do REPL: **Shift+Enter** para compilar e provar. O `helper` existe **só** porque R1CS é quadrático.
-
-#### Exemplo 2 — `GuessNumber` (commit-and-reveal com Poseidon)
-
-Cenário: alguém publica `solutionCommitment = Poseidon(solution)`. Você quer provar que conhece um `guess` igual a `solution` *sem revelar* `solution`.
+Alguém publica num quadro `commitment = Poseidon(segredo)`. Você jura que sabe o `segredo`. Como provar sem soltar o segredo?
 
 ```circom
 pragma circom 2.1.6;
@@ -145,9 +72,9 @@ include "circomlib/poseidon.circom";
 include "circomlib/comparators.circom";
 
 template GuessNumber() {
-    signal input guess;                  // privado: o palpite
-    signal input solutionCommitment;     // público: o hash já publicado
-    signal output answer;                // público: 1 se acertou
+    signal input  guess;                // privado
+    signal input  solutionCommitment;   // público
+    signal output answer;               // público (1 = acertou)
 
     component hasher = Poseidon(1);
     hasher.inputs[0] <== guess;
@@ -162,117 +89,63 @@ template GuessNumber() {
 component main {public [solutionCommitment]} = GuessNumber();
 ```
 
-> A mecânica do `component`: você está **invocando outro template** como subcomponente. `Poseidon(1)` significa "Poseidon com 1 input"; `IsEqual()` retorna 1 se `in[0] == in[1]`, senão 0.
+Lê assim: existe um sinal privado `guess`, um sinal público `solutionCommitment`, e um output `answer`. Pega o `guess`, joga no Poseidon, compara o hash com o commitment público, devolve 1 se bate. Quem verifica a prova vê apenas `solutionCommitment` e `answer` — nunca vê `guess`. Mas tem certeza matemática de que existe um `guess` cujo Poseidon coincide com o commitment.
 
-> ⚠️ A aula esbarrou num bug do REPL: ao mudar o input JSON, o exemplo às vezes mostra resultado em cache. Forçar **Shift+Enter** ou recarregar resolve.
-
-### 8. circomlib — biblioteca padrão
-
-`circomlib` (iden3/circomlib no GitHub) é o equivalente da stdlib em Circom. Templates prontos para:
-
-| Categoria | Templates úteis |
-|---|---|
-| Hashes | `Poseidon`, `MiMC`, `Pedersen` |
-| Comparadores | `IsEqual`, `LessThan`, `GreaterEqThan` |
-| Bitwise | `Num2Bits`, `Bits2Num`, `XOR`, `AND` |
-| Multiplexers | `Mux1`…`Mux4` |
-| Assinaturas | `EdDSA`, `BabyJub` |
-| Merkle | `MerkleTreeChecker` |
-
-Inclua via `include "circomlib/<nome>.circom";`. **Não reinvente roda** — qualquer hash/comparador escrito do zero costuma estar errado e/ou underconstrained.
+Esse padrão — *provar conhecimento de um pré-imagem* — é o esqueleto de **toda** aplicação ZK. Mude o que está sendo hasheado e você muda o domínio: hash de uma chave secreta vira sistema de identidade; hash de uma raiz Merkle vira airdrops anônimos; hash de um conjunto de credenciais vira KYC privado.
 
 ---
 
-## Walkthrough — anatomia de um circuito Circom
+## Por que Poseidon e não SHA-256
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  template MeuCircuito() {                                   │
-│      signal input  x;          ← públicos por padrão         │
-│      signal input  secret;     ← privados se NÃO listados    │
-│      signal output y;          ←   em "public [...]"         │
-│                                                              │
-│      signal h;                 ← helper / intermediário      │
-│      h <== x * x;              ← constraint quadrática      │
-│      y <== h + secret;         ← constraint linear           │
-│  }                                                           │
-│                                                              │
-│  component main {public [x]} = MeuCircuito();               │
-│                                  ↑                           │
-│                          declara explicitamente              │
-│                          quais inputs são públicos           │
-└─────────────────────────────────────────────────────────────┘
+Pergunta natural: por que não usar SHA-256, que é onipresente? Resposta: porque dentro de um circuito zk, SHA-256 é um pesadelo.
 
-         ↓  zkREPL ou snarkjs  ↓
+SHA-256 foi desenhado para CPUs e ASICs — operações binárias, deslocamentos, XOR. Tudo isso dentro de um campo finito vira uma quantidade absurda de restrições: ~30.000 para um único hash. O prover demora segundos para gerar uma prova trivial.
 
-  ┌─────────┐    ┌─────────┐    ┌─────────┐
-  │  .r1cs  │ →  │  .wasm  │ →  │  proof  │
-  │ R1CS    │    │ witness │    │ Groth16 │
-  │ system  │    │ generator│    │ / PLONK │
-  └─────────┘    └─────────┘    └─────────┘
-```
+Poseidon, MiMC e Rescue são **arithmetic-friendly**: foram desenhados de cima pra baixo para viver dentro de um campo finito. Um hash Poseidon custa ~250 restrições. Cem vezes mais barato. Por isso todo circuito sério usa Poseidon (ou similar) para hashes internos, deixando SHA/Keccak para a borda do sistema (compatibilidade com Ethereum, por exemplo).
+
+A regra aqui é geral: **dentro do circuito, escolha primitivas pensadas para o circuito**. Fora dele, use as primitivas do mundo real. A interface entre os dois mundos é onde mora a complexidade.
 
 ---
 
-## Comentários técnicos e correções
+## Onde escrever sem instalar nada
 
-1. **"Hardware description language" é metáfora forte mas imperfeita.** Circom não vira chip — vira R1CS, depois vira proof. A analogia ajuda no mindset (paralelismo, sem flow imperativo) mas o output final é uma prova zk-SNARK, não bitstream para FPGA.
+A barreira de entrada para experimentar Circom costumava ser feia: instalar Rust, baixar o compilador, configurar `snarkjs`, sofrer com versões. O **zkREPL** ([zkrepl.dev](https://zkrepl.dev)) elimina isso. Editor no browser, compilador em WebAssembly, Groth16 e PLONK clicáveis. Você cola o `GuessNumber` acima, define `INPUT = { "guess": 4, "solutionCommitment": "<hash do 4>" }`, aperta Shift+Enter, e em segundos tem uma prova válida.
 
-2. **Pragma version importa.** A aula usa `pragma circom 2.1.6`. Versões anteriores (1.x) tinham sintaxe diferente (sem `<==` etc.). Sempre fixe a versão — circuitos em produção geralmente travam exatamente.
-
-3. **Underconstrained vs overconstrained.** Dois bugs simétricos:
-
-   | Bug | O que acontece | Como detectar |
-   |---|---|---|
-   | Underconstrained | Prover pode forjar witness inválida que passa | audit manual; ferramentas como Circomspect, Picus |
-   | Overconstrained | Provas honestas são rejeitadas | testes de roundtrip prover→verifier |
-
-4. **`signal input` público vs privado.** Confusão comum: por padrão um `signal input` é *witness* (privado). Para marcar como público, você lista no `component main {public [a, b]} = ...`. Tudo que **não** estiver na lista vira parte do witness secreto. Outputs são sempre públicos.
-
-5. **O exemplo `Mul3` exibe a regra-chave do R1CS.** Não é por elegância: é matemática. Groth16/PLONK provam afirmações na forma `A·B = C` onde A, B, C são combinações lineares. Multiplicação de 3 fatores é grau 3 — não cabe.
-
-6. **`Poseidon` foi escolhido em vez de SHA-256/Keccak por um motivo.** Hashes "tradicionais" são desastrosos dentro de circuitos zk: SHA-256 custa ~30k constraints, Poseidon custa ~250. Poseidon, MiMC, Rescue são **arithmetization-friendly**: foram desenhados para finite field aritmético, não para CPU/ASIC. Use-os por dentro do circuito; SHA/Keccak só nas bordas (compatibilidade com Ethereum).
-
-7. **`zkREPL` é ótimo para aprender, ruim para produção.** Compila no browser via WASM, sem trusted setup real. Para circuitos de produção: `circom <arquivo>.circom --r1cs --wasm --sym` localmente + `snarkjs` para Groth16/PLONK + cerimônia MPC própria.
-
-8. **Constraints entre dois outputs?** A pergunta de Yura na aula ficou aberta. Resposta: **sim, é permitido** — `out1 === 2 * out2` é uma constraint válida. Mas raramente faz sentido design-wise: outputs costumam ser independentemente derivados de inputs.
-
-9. **`signal` vs `var` (ausente da aula, mas crítico).** Circom também tem `var` — variáveis comuns de compile-time, **não** vão para o circuito. Útil para loops e cálculos auxiliares na geração do circuito. Não confunda: `var` desaparece após compilar; `signal` vira fio no circuito final.
-
-10. **Próximas peças que faltam.** Esta aula só apresentou Circom. Para construir uma dApp ZK completa você ainda precisa:
-    - **snarkjs** — gerar prova/verificar fora do REPL
-    - **trusted setup** — Powers of Tau (universal, do Hermez/Polygon) + setup do circuito
-    - **verifier on-chain** — `snarkjs zkey export solidityverifier` gera contrato Solidity
-    - **frontend** — empacotar witness no browser, chamar verificador
-
-**Leituras complementares:**
-
-- [Circom 2 Docs](https://docs.circom.io/) — referência oficial, leia "Writing circuits" inteiro
-- [iden3/circomlib](https://github.com/iden3/circomlib) — código-fonte da stdlib
-- [0xPARC ZK Learning Group — Circom Workshop](https://learn.0xparc.org/circom/) — material denso, complementa esta aula
-- [Vitalik — Quadratic Arithmetic Programs from Zero to Hero](https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649) — entender por que R1CS existe
-- [Circomspect](https://github.com/trailofbits/circomspect) — linter/static analyzer da Trail of Bits para circuitos Circom
-- [Picus](https://github.com/Veridise/Picus) — detecta underconstrained automaticamente
-- [snarkjs](https://github.com/iden3/snarkjs) — toolkit fora do REPL
+Não substitui um setup local quando você for pra produção, mas é o caminho mais rápido para construir intuição. Recomendado: passe duas horas só escrevendo circuitinhos absurdos no zkREPL antes de tentar instalar qualquer coisa. Esse tempo paga juros pelo resto da sua jornada com ZK.
 
 ---
 
-## Exercícios
+## A pilha completa, de relance
 
-A instrutora prometeu enviar tarefas via Google Classroom. Sugestões enquanto não chegam:
+Circom é só uma das quatro peças de uma dApp ZK funcional. As outras:
 
-1. **(Fácil)** Escreva um template `IsEven(n)` que recebe `signal input x` (n bits) e retorna `signal output isEven` (1 se par). Dica: use `Num2Bits(n)` e cheque `bits[0]`.
+A **biblioteca padrão** — `circomlib` — fornece hashes (Poseidon, MiMC), comparadores (IsEqual, LessThan), Merkle trees, EdDSA, conversões bit↔número. Use sempre. Reescrever um comparator em Circom é como reescrever `strcmp` em assembly: tecnicamente possível, profissionalmente irresponsável.
 
-2. **(Fácil)** Reescreva `Mul3` para `Mul4(a, b, c, d)`. Quantos helpers você precisou? Por quê?
+O **gerador de prova** — `snarkjs` — pega o R1CS que Circom emitiu, faz o setup criptográfico, gera a prova e exporta um verificador (em Solidity, geralmente). É a ferramenta que faz a ponte entre o objeto matemático e a infraestrutura blockchain.
 
-3. **(Médio)** Implemente `Range(min, max)`: prova que `min <= x <= max` sem revelar `x`. Use `LessThan` ou `LessEqThan` de `circomlib/comparators.circom`. Por que esse circuito é útil para *age verification*?
+O **trusted setup** é o ritual político-criptográfico onde múltiplas pessoas contribuem aleatoriedade que, combinada, produz parâmetros públicos. Se *qualquer uma* delas for honesta e destruir sua share, o sistema é seguro. PLONK precisa do setup uma vez para todos os circuitos (universal); Groth16 precisa de um setup por circuito.
 
-4. **(Médio)** Crie um circuito `MerklePathCheck(depth)` que prove inclusão de uma folha numa Merkle tree de Poseidon, sem revelar a folha. Comece da skeleton de `MerkleTreeChecker` em circomlib.
+E o **frontend** — JavaScript ou Rust no browser/mobile — que coleta os inputs do usuário, gera o witness localmente, manda a prova para um contrato, recebe o resultado. Aqui não há mistério: é trabalho normal de aplicação, com a peculiaridade de que parte da computação é uma prova ZK.
 
-5. **(Médio)** No exemplo `GuessNumber`, troque Poseidon por uma comparação direta `guess === solution`. Por que isso destrói o protocolo? (Dica: pense no que o verifier vê.)
+---
 
-6. **(Difícil)** Pegue o `Mul3` e introduza um bug **underconstrained**: substitua `<==` por `<--` em uma das linhas e prove que com input `(2, 3, 5)` o `m=30` valida — mas você consegue gerar uma witness com `m=99` que **também valida**.
+## O reset mental, em uma frase
 
-7. **(Difícil)** Implemente `ZKVoting`: cada eleitor tem uma chave EdDSA, vota `0` ou `1`, e o circuito prova "votei uma vez, sem revelar quem sou nem quem votei". Use `EdDSA` + `MerkleTreeChecker` de circomlib.
+Programar é dizer ao computador o que fazer. Escrever um circuito Circom é **declarar quais equações precisam ser verdadeiras** para que uma afirmação seja crível. O programa nunca é "executado" no sentido tradicional — ele é compilado para matemática, e essa matemática vira uma prova que qualquer um pode verificar com um celular em milissegundos, sem confiar em quem provou.
 
-8. **(Conceitual)** Compare `Groth16` vs `PLONK` na escolha do REPL. Por que PLONK precisa de trusted setup *universal* (uma vez para todos os circuitos) enquanto Groth16 precisa *por circuito*? Quando você escolheria um vs outro?
+Quando esse clique acontece — quando você para de tentar imaginar "o que esse circuito faz quando roda" e começa a pensar "que afirmação esse circuito torna verificável" — Circom para de ser estranha e vira o que ela sempre foi: uma linguagem extraordinariamente direta para descrever hardware criptográfico.
+
+A partir daí, o resto é prática.
+
+---
+
+> *Notas baseadas na sessão **"Intro to Circom & ZK App Architecture"** ministrada por **Milica** ([@0xMilica](https://x.com/0xMilica)) no dev3pack ZK & Privacy Bootcamp em 28 de abril de 2026.*
+> *[▶︎ Vídeo da aula](https://www.youtube.com/watch?v=tK2pwF74vcY) · [transcrição crua](./transcript-raw.md) · [leitura preparatória](./reading-week3-circom.pdf)*
+
+### Para continuar
+
+- [docs.circom.io](https://docs.circom.io/) — documentação oficial. Leia "Writing circuits" inteiro.
+- [iden3/circomlib](https://github.com/iden3/circomlib) — código-fonte da biblioteca padrão.
+- [0xPARC ZK Learning Group](https://learn.0xparc.org/circom/) — workshops mais densos.
+- [Vitalik — Quadratic Arithmetic Programs from Zero to Hero](https://medium.com/@VitalikButerin/quadratic-arithmetic-programs-from-zero-to-hero-f6d558cea649) — entender por que R1CS existe.
+- [Circomspect](https://github.com/trailofbits/circomspect) (Trail of Bits) e [Picus](https://github.com/Veridise/Picus) (Veridise) — detectores estáticos de bugs underconstrained.
